@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>jxsource.oauth2</groupId>
+	<artifactId>oauth2-resource-server</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<!-- <parent> <groupId>gov.ssa.mde</groupId> <artifactId>ssa-spring-meta-pom</artifactId> 
+		<version>1.0.12</version> </parent> -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.4.RELEASE</version>
+		<relativePath /> 
+	</parent>
+	<!-- <parent> <groupId>gov.ssa.mde</groupId> <artifactId>ssa-springv2-meta-pom</artifactId> 
+		<version>1.2.8</version> </parent> -->
+
+	<properties>
+		<aspectj.version>1.8.9</aspectj.version>
+		<aspectj.plugin.version>1.10</aspectj.plugin.version>
+		<exec.version>1.6.0</exec.version>
+		<junit.version>4.12</junit.version>
+	</properties>
+
+	<dependencies>
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-properties-migrator</artifactId> 
+			<scope>runtime</scope> </dependency> -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter</artifactId> 
+			</dependency> -->
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<!-- Spring Boot 2 does not include it. need specific version -->
+			<version>2.3.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+			<!-- Spring Boot 2 does not include it. need specific version -->
+			<version>1.1.1.RELEASE</version>
+		</dependency>
+		<!-- aspectj <dependency> <groupId>org.aspectj</groupId> <artifactId>aspectjrt</artifactId> 
+			<version>${aspectj.version}</version> </dependency> <dependency> <groupId>org.aspectj</groupId> 
+			<artifactId>aspectjweaver</artifactId> <version>${aspectj.version}</version> 
+			</dependency> <dependency> <groupId>jxsource.aspectj</groupId> <artifactId>trace</artifactId> 
+			<version>1.0.0</version> </dependency> -->
+		<dependency>
+			<groupId>jxsource.oauth2</groupId>
+			<artifactId>oauth2-util</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.52</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.6.11</version>
+		</dependency>
+		<dependency>
+			<groupId>jxsource.util.logging</groupId>
+			<artifactId>aspectj-json-logging</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+
+		<!-- java 11
+<dependency>
+    <groupId>javax.xml.bind</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.3.1</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish.jaxb</groupId>
+    <artifactId>jaxb-runtime</artifactId>
+    <version>2.3.2</version>
+</dependency>
+ -->
+	</dependencies>
+
+	<build>
+		<finalName>${artifactId}-${version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.20.1</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+
+					<mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
+					<additionalClasspathElements>target/oauth2-resource-server-0.0.1-SNAPSHOT.jar</additionalClasspathElements>
+					<executable>maven</executable>
+					<arguments>
+						<argument>-jar</argument>
+						<argument>/target/oauth2-resource-server-0.0.1-SNAPSHOT.jar</argument>
+						<argument>--spring.config.location=classpath:application.http.properties</argument>
+					</arguments>
+					<!-- <additionalClasspathElements> <additionalClasspathElement>../java-input-src/java-input-src.jar</additionalClasspathElement> 
+						</additionalClasspathElements> -->
+					<!-- optional <workingDirectory>/temp/mvn-exec-tmp</workingDirectory> 
+						<arguments> <argument>-X</argument> <argument>myproject:dist</argument> </arguments> -->
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

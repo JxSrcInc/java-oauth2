@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/auth-server/src/main/java/jxsource/oauth2/authorization/AuthorizationServer.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="oauth2.certificateAlias" value="9e2583"/>
+<mapEntry key="oauth2.certificatePassword" value="kerTeg6!"/>
+<mapEntry key="oauth2.certificatePath" value="jws-keystore-dev.keystore"/>
+<mapEntry key="oauth2.keystoreAlias" value="9e2583"/>
+<mapEntry key="oauth2.keystorePassword" value="kerTeg6!"/>
+<mapEntry key="oauth2.keystorePath" value="jws-keystore-dev.keystore"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jxsource.oauth2.authorization.AuthorizationServer"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="oauth2-auth-server"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Doauth2.certificatePath=jws-keystore-dev.keystore&#13;&#10;-Doauth2.certificateAlias=9E2583&#13;&#10;-Doauth2.certificatePassword=kerTeg6!&#13;&#10;-Doauth2.keystorePath=jwt-test.jks&#13;&#10;-Doauth2.keystoreAlias=jwt-test&#13;&#10;-Doauth2.keystorePassword=testpass"/>
+</launchConfiguration>

@@ -1,0 +1,1 @@
+jxsource.oauth2.proxy package is web API to get JWT from resources.jws-keystore-dev.keystore file
