@@ -1,0 +1,1 @@
+jxsource.oauth2.proxy package is web API to get access JWT token using  ClientKeyStore.jks file

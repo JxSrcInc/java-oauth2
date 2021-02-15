@@ -1,4 +1,4 @@
-package jxsource.oauth2.proxy.controller;
+package jxsource.oauth2.client.jwt.controller;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ import jxsource.oauth2.jwt.util.ClientJwtUtil;
 import jxsource.oauth2.util.JwtBearerAcquirer;
 
 @Controller
-public class ProxyControll {
+public class ClientJwtGenerateUrlControll {
 
 	@Autowired
 	ClientJwtUtil jwtUtil;
