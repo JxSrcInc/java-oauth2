@@ -6,6 +6,14 @@
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
     </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="oauth2.certificateAlias" value="mydomain"/>
+        <mapEntry key="oauth2.certificatePassword" value="changeit"/>
+        <mapEntry key="oauth2.certificatePath" value="KeyStore.jks"/>
+        <mapEntry key="oauth2.keystoreAlias" value="mydomain"/>
+        <mapEntry key="oauth2.keystorePassword" value="changeit"/>
+        <mapEntry key="oauth2.keystorePath" value="KeyStore.jks"/>
+    </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
@@ -14,5 +22,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="oauth2-auth-server"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="auth-server"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Doauth2.certificatePath=ClientKeyStore.jks&#13;&#10;-Doauth2.certificateAlias=oauth2test&#13;&#10;-Doauth2.certificatePassword=changeit&#13;&#10;-Doauth2.keystorePath=ResourceKeyStore.jks&#13;&#10;-Doauth2.keystoreAlias=oauth2test&#13;&#10;-Doauth2.keystorePassword=changeit"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Doauth2.certificatePath=KeyStore.jks&#13;&#10;-Doauth2.certificateAlias=mydomain&#13;&#10;-Doauth2.certificatePassword=changeit&#13;&#10;-Doauth2.keystorePath=KeyStore.jks&#13;&#10;-Doauth2.keystoreAlias=mydomain&#13;&#10;-Doauth2.keystorePassword=changeit"/>
 </launchConfiguration>
