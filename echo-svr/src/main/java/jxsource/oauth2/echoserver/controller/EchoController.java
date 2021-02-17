@@ -39,13 +39,13 @@ public class EchoController {
     	JsonNode info = new HttpServletRequestJsonNodeBuilder()
     			.setRequest(request).loadContent().build();
     	String msg = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(info);
-		System.out.println(msg);		
+		logger.debug("\n"+msg);		
     	HttpHeaders respHeaders = new HttpHeaders();
     	respHeaders.setContentType(MediaType.TEXT_PLAIN);
     	// TODO: remove 
 //    	respHeaders.setAccessControlAllowOrigin("*");
 		ResponseEntity<String> response = new ResponseEntity<String>(msg, respHeaders, HttpStatus.OK);
-		System.out.println(Util.getResponse(response));		
+		logger.debug("\n"+Util.getResponse(response));		
 		return response;
 	}
 

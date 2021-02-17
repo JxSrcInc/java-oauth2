@@ -30,13 +30,18 @@ public class Worker implements Runnable, ActionListener{
 	private Pipe pipeServerToClient;
 	private Thread threadClientToServer;
 	private Thread threadServerToClient;
-	private Thread threadLogClientToServer;
-	private Thread threadLogServerToClient;
-	private LogPipe logPipeClientToServer;
-	private LogPipe logPipeServerToClient;
+//	private Thread threadLogClientToServer;
+//	private Thread threadLogServerToClient;
+//	private LogClientToServerImpl logPipeClientToServer;
+//	private LogServerToClientIImpl logPipeServerToClient;
 	private long waitTimeToClose = 1000;
 	
-	public Worker init(Socket client, InputStream clientInput, Socket server) throws IOException{
+	private Thread threadLogProcess;
+	
+	private LogContext context = LogContext.get();
+	private LogProcess logProcess;
+	
+	public Worker init(Socket client, InputStream clientInput, Socket server) throws IOException, InstantiationException, IllegalAccessException{
 		String msg = String.format("*** Thread(%s): start Worker(%d), client(%s:%d), server(%s:%d)",
 				Thread.currentThread().getName(), this.hashCode(), 
 				client.getInetAddress().getHostName(), client.getPort(),
@@ -51,14 +56,17 @@ public class Worker implements Runnable, ActionListener{
 		}
 		clientOutput = this.client.getOutputStream();
 		serverInput = this.server.getInputStream();
+		serverOutput = this.server.getOutputStream();
 		// create log pipe
 		PipedOutputStream logOutClientToServer = new PipedOutputStream();
-		PipedInputStream logInClientToServer  = new PipedInputStream(logOutClientToServer);
-        logPipeClientToServer = new LogPipe(logInClientToServer);
+		PipedInputStream logInputStreamClientToServer  = new PipedInputStream(logOutClientToServer);
+//        logPipeClientToServer = new LogClientToServerImpl(logInClientToServer);
+//        logPipeClientToServer = new LogClientToServerImpl(null);
 		PipedOutputStream logOutServerToClient = new PipedOutputStream();
-		PipedInputStream logInServerToClient  = new PipedInputStream(logOutServerToClient);
-        logPipeServerToClient = new LogPipe(logInServerToClient);
-		serverOutput = this.server.getOutputStream();
+		PipedInputStream logInputStreamServerToClient  = new PipedInputStream(logOutServerToClient);
+//        logPipeServerToClient = new LogServerToClientIImpl(logInServerToClient);
+//        logPipeServerToClient = new LogServerToClientIImpl(null);
+//        logPipeServerToClient = new LogPipe(null);
 		// add timeout to input stream to handle client call from browser.
 		// looks that browser sends the first call to test connection. 
 		// then uses the second call to do job.
@@ -67,16 +75,21 @@ public class Worker implements Runnable, ActionListener{
 		pipeClientToServer.setListener(this);
 		pipeServerToClient = new Pipe(pipeServerToClientName, serverInput, clientOutput, logOutServerToClient);
 		pipeServerToClient.setListener(this);
+		
+		logProcess = context.getLogProcess();
+		logProcess.init(logInputStreamClientToServer, logInputStreamServerToClient);
 		return this;
 	}
 
 	@Override
 	public void run() {
 		try {
-			threadLogClientToServer = new Thread(logPipeClientToServer);
-			threadLogClientToServer.start();
-			threadLogServerToClient = new Thread(logPipeServerToClient);
-			threadLogServerToClient.start();
+			threadLogProcess = new Thread(logProcess);
+			threadLogProcess.start();
+//			threadLogClientToServer = new Thread(logPipeClientToServer);
+//			threadLogClientToServer.start();
+//			threadLogServerToClient = new Thread(logPipeServerToClient);
+//			threadLogServerToClient.start();
 			threadClientToServer = new Thread(pipeClientToServer);
 			threadClientToServer.start();
 			threadServerToClient = new Thread(pipeServerToClient);

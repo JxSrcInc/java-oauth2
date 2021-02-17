@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
 
-@Component
-@Scope("prototype")
+//@Component
+//@Scope("prototype")
 public class Dispatcher implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Dispatcher.class);
 //	@Autowired
@@ -110,7 +110,7 @@ public class Dispatcher implements Runnable {
 			worker.init(client, clientInput, server);
 			new Thread(worker).start();
 			log.debug(logMsg("end Dispatcher with starting Worker"));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error(logMsg("Fail to start Dispatcher thread"), e);
 			try {
 				client.close();

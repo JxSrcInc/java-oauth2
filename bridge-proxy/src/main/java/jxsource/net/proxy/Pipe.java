@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * Pipe to pass data between client and server
+ */
 public class Pipe implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Pipe.class);
 	private InputStream in;

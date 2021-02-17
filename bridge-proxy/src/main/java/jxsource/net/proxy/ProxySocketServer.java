@@ -29,6 +29,7 @@ public class ProxySocketServer {
 //	private Dispatcher dispatcher;
 	
 	public void start() {
+		Configuration.config();
 		try {
 			ServerSocket ss = new ServerSocket(port);
 			
