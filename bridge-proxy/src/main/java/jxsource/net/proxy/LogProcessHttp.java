@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import jxsource.net.proxy.http.HttpHeaderReader;
 import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
-import jxsource.net.proxy.util.exception.HttpMessageProcessor;
+import jxsource.net.proxy.http.HttpHeader;
+import jxsource.net.proxy.http.HttpMessageProcess;
 
 public class LogProcessHttp extends LogProcess {
 	private static Logger log = LoggerFactory.getLogger(LogProcessHttp.class);
@@ -26,7 +27,7 @@ public class LogProcessHttp extends LogProcess {
 	protected void init(InputStream inClient, InputStream inServer) {
 		this.inClient = inClient;
 		this.inServer = inServer;
-		clientHttpMessageProcess = new HttpMessageProcess().init(inClient, System.err);
+		clientHttpMessageProcess = new HttpMessageProcess().init(inClient);
 		serverHttpMessageProcess = new HttpMessageProcess().init(inServer);
 	}
 
@@ -46,6 +47,14 @@ public class LogProcessHttp extends LogProcess {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			String msg = String.format(">>> Request:\n%s %s\n<<< Response:\n%s %s",
+					new String(clientHttpMessageProcess.getHeaderBytes()),
+					clientHttpMessageProcess.getContent()==null?"":new String(clientHttpMessageProcess.getContent()),
+							new String(serverHttpMessageProcess.getHeaderBytes()),
+							serverHttpMessageProcess.getContent()==null?"":new String(serverHttpMessageProcess.getContent())
+							
+					);
+			log.debug("****** Transfer ******\n"+msg);
 		}
 	}
 }

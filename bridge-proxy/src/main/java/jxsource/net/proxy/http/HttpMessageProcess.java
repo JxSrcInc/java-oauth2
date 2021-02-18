@@ -1,4 +1,4 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,43 +9,43 @@ import org.slf4j.LoggerFactory;
 
 import jxsource.net.proxy.http.HttpHeaderReader;
 import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
-import jxsource.net.proxy.util.exception.HttpMessageProcessor;
+import jxsource.net.proxy.http.HttpHeader;
 
 public class HttpMessageProcess {
 	private static Logger log = LoggerFactory.getLogger(HttpMessageProcess.class);
-	private PrintStream ps;
 	protected InputStream in;
+	protected byte[] headerBytes;
 	HttpHeaderReader reader = HttpHeaderReader.build();
-	public HttpMessageProcess init(InputStream in, PrintStream...ps) {
+	HttpHeader handler = HttpHeader.build();
+	byte[] content;
+	public HttpMessageProcess init(InputStream in) {
 		this.in = in;
-		if(ps.length > 0) {
-			this.ps = ps[0];
-		} else {
-			this.ps = System.out;
-		}
 		return this;
 	}
 
-	protected void proc() throws Exception {
-		byte[] buf = new byte[1024*8];
-		HttpMessageProcessor proc = HttpMessageProcessor.build();
-				buf = reader.getHeaderBytes(in);
-				ps.println(new String(buf));
-				proc.init(buf);
-				String contentLength = proc.getHeaderValue("Content-Length");
+	public void proc() throws Exception {
+		content = null;
+		headerBytes = reader.getHeaderBytes(in);
+				handler.init(headerBytes);
+				String contentLength = handler.getHeaderValue("Content-Length");
 				if(contentLength != null) {
 					getContent(Integer.parseInt(contentLength), in);
 				}
-				ps.println("**** LogServerToClient");
 	}
 	
 	public void getContent(int length, InputStream in) throws IOException {
-		byte[] buf = new byte[length];
+		content = new byte[length];
 		int pos = 0;
 		while(pos<length) {
-			int i = in.read(buf,pos,length-pos);
+			int i = in.read(content,pos,length-pos);
 			pos += i;
 		}
-		ps.println(new String(buf));
+	}
+	
+	public byte[] getHeaderBytes() {
+		return headerBytes;
+	}
+	public byte[] getContent() {
+		return content;
 	}
 }

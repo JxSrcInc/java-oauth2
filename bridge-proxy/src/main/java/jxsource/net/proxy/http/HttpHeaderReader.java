@@ -1,19 +1,16 @@
 package jxsource.net.proxy.http;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.Worker;
 import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
 
+/*
+ * It is reusable
+ */
 public class HttpHeaderReader {
 	private static Logger log = LoggerFactory.getLogger(HttpHeaderReader.class);
 	
@@ -22,7 +19,7 @@ public class HttpHeaderReader {
 	static final byte b10 = 10;
 
 	// TODO: assume the size is big enough to hold HTTP headers
-	private int size = 1024 * 8;
+	private final int size = 1024 * 8;
 
 	public static HttpHeaderReader build() {
 		return new HttpHeaderReader();

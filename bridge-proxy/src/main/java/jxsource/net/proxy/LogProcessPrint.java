@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import jxsource.net.proxy.http.HttpHeaderReader;
 import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
-import jxsource.net.proxy.util.exception.HttpMessageProcessor;
 
 /*
  * print client-to-server and server-to-client message in two threads
