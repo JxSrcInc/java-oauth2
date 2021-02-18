@@ -30,11 +30,6 @@ public class Worker implements Runnable, ActionListener{
 	private Pipe pipeServerToClient;
 	private Thread threadClientToServer;
 	private Thread threadServerToClient;
-//	private Thread threadLogClientToServer;
-//	private Thread threadLogServerToClient;
-//	private LogClientToServerImpl logPipeClientToServer;
-//	private LogServerToClientIImpl logPipeServerToClient;
-	private long waitTimeToClose = 1000;
 	
 	private Thread threadLogProcess;
 	
@@ -60,22 +55,14 @@ public class Worker implements Runnable, ActionListener{
 		// create log pipe
 		PipedOutputStream logOutClientToServer = new PipedOutputStream();
 		PipedInputStream logInputStreamClientToServer  = new PipedInputStream(logOutClientToServer);
-//        logPipeClientToServer = new LogClientToServerImpl(logInClientToServer);
-//        logPipeClientToServer = new LogClientToServerImpl(null);
 		PipedOutputStream logOutServerToClient = new PipedOutputStream();
 		PipedInputStream logInputStreamServerToClient  = new PipedInputStream(logOutServerToClient);
-//        logPipeServerToClient = new LogServerToClientIImpl(logInServerToClient);
-//        logPipeServerToClient = new LogServerToClientIImpl(null);
-//        logPipeServerToClient = new LogPipe(null);
-		// add timeout to input stream to handle client call from browser.
-		// looks that browser sends the first call to test connection. 
-		// then uses the second call to do job.
-		// the timeout will release the first call to allow the second one comes in.
+		// create working pipe
 		pipeClientToServer = new Pipe(pipeClientToServerName, clientInput, serverOutput, logOutClientToServer, true);
 		pipeClientToServer.setListener(this);
 		pipeServerToClient = new Pipe(pipeServerToClientName, serverInput, clientOutput, logOutServerToClient);
 		pipeServerToClient.setListener(this);
-		
+		// create log process
 		logProcess = context.getLogProcess();
 		logProcess.init(logInputStreamClientToServer, logInputStreamServerToClient);
 		return this;
@@ -86,10 +73,6 @@ public class Worker implements Runnable, ActionListener{
 		try {
 			threadLogProcess = new Thread(logProcess);
 			threadLogProcess.start();
-//			threadLogClientToServer = new Thread(logPipeClientToServer);
-//			threadLogClientToServer.start();
-//			threadLogServerToClient = new Thread(logPipeServerToClient);
-//			threadLogServerToClient.start();
 			threadClientToServer = new Thread(pipeClientToServer);
 			threadClientToServer.start();
 			threadServerToClient = new Thread(pipeServerToClient);
@@ -100,16 +83,6 @@ public class Worker implements Runnable, ActionListener{
 		}
 	}
 
-	// wait for other Pipe to complete its work
-	// TODO: should change to status check
-	private void waitToInterrupt() {
-		try {
-			Thread.sleep(waitTimeToClose);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String pipeName = e.getActionCommand();
@@ -117,9 +90,8 @@ public class Worker implements Runnable, ActionListener{
 		debugLog(msg);
 		// stop thread
 		if(pipeName.equals(pipeClientToServerName)) {
-			// TODO: check transaction complete
+			// TODO: check transaction complete?
 			if(threadServerToClient.isAlive()) {
-				waitToInterrupt();
 				debugLog(String.format("Interrupt %s(%d)", pipeServerToClientName, threadServerToClient.hashCode()));
 				threadServerToClient.interrupt();
 			} else {
@@ -127,7 +99,6 @@ public class Worker implements Runnable, ActionListener{
 			}
 		} else {
 			if(threadClientToServer.isAlive()) {
-				waitToInterrupt();
 				debugLog(String.format("Interrupt %s(%d)", pipeClientToServerName, threadClientToServer.hashCode()));
 				threadClientToServer.interrupt();
 			} else {
@@ -136,7 +107,7 @@ public class Worker implements Runnable, ActionListener{
 		}
 	}
 	private void destroy() {
-		// close socket
+		// close sockets
 		debugLog("finished");
 		// TODO: Do we need to close socket's input and output stream?
 		closeSocket(client);

@@ -15,6 +15,7 @@ public class HttpMessageProcess {
 	private static Logger log = LoggerFactory.getLogger(HttpMessageProcess.class);
 	private PrintStream ps;
 	protected InputStream in;
+	HttpHeaderReader reader = HttpHeaderReader.build();
 	public HttpMessageProcess init(InputStream in, PrintStream...ps) {
 		this.in = in;
 		if(ps.length > 0) {
@@ -27,7 +28,6 @@ public class HttpMessageProcess {
 
 	protected void proc() throws Exception {
 		byte[] buf = new byte[1024*8];
-		HttpHeaderReader reader = HttpHeaderReader.build();
 		HttpMessageProcessor proc = HttpMessageProcessor.build();
 				buf = reader.getHeaderBytes(in);
 				ps.println(new String(buf));

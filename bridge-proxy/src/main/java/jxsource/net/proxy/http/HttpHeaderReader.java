@@ -8,23 +8,24 @@ import java.nio.charset.Charset;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.Worker;
 import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
 
 public class HttpHeaderReader {
+	private static Logger log = LoggerFactory.getLogger(HttpHeaderReader.class);
 	
 	public static final String[] Methods = {"GET","HEAD","POST","PUT","DELETE","CONNECT","OPTIONS","TRACE","PATCH","HTTP"};
 	static final byte b13 = 13;
 	static final byte b10 = 10;
 
+	// TODO: assume the size is big enough to hold HTTP headers
 	private int size = 1024 * 8;
-	private byte[] httpHeaderBytes; 
 
 	public static HttpHeaderReader build() {
 		return new HttpHeaderReader();
-	}
-	public byte[] getHeaderBytes() {
-		return httpHeaderBytes;
 	}
 	// TODO: handle concurrent?
 	public byte[] getHeaderBytes(InputStream in) throws IOException, HttpHeaderReaderException{
@@ -32,17 +33,16 @@ public class HttpHeaderReader {
 		int count = 0;
 		for (count = 0; count < size; count++) {
 			buf[count] = (byte) in.read();
-//			System.err.print((char)buf[count]);
 			if (count > 4 && buf[count] == b10 && buf[count - 1] == b13 && buf[count - 2] == b10 && buf[count - 3] == b13) {
 				break;
 			}
 		}
-		httpHeaderBytes =  new byte[count];
-		System.arraycopy(buf, 0, httpHeaderBytes, 0, count);
 		if(count == size) {
+			log.error(String.format("**** Input stream has more then %d bytes: \n%s", size, new String(buf)));
 			throw new HttpHeaderReaderException();
 		}
-//		count = 0;
+		byte[] httpHeaderBytes =  new byte[count];
+		System.arraycopy(buf, 0, httpHeaderBytes, 0, count);
 		return httpHeaderBytes;
 	}
 	
