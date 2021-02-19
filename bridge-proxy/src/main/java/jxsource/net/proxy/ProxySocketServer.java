@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import jxsource.net.proxy.util.ThreadUtil;
+
 @Component
 public class ProxySocketServer {
 	private static Logger log = LoggerFactory.getLogger(ProxySocketServer.class);
@@ -25,11 +27,11 @@ public class ProxySocketServer {
 	// socket server listening port
 	@Value("${socketserver.port:9999}")
 	private int port;
-//	@Autowired
-//	private Dispatcher dispatcher;
+	@Autowired
+	private Configuration configuration;
 	
 	public void start() {
-		Configuration.config();
+		configuration.config();
 		try {
 			ServerSocket ss = new ServerSocket(port);
 			
@@ -39,7 +41,7 @@ public class ProxySocketServer {
 				log.info("accept: " + client.getInetAddress());
 				try {
 					Dispatcher dispatcher = new Dispatcher().init(client, bridge, serverHost, serverPort);
-				new Thread(dispatcher).start();
+					ThreadUtil.createThread(dispatcher).start();
 				} catch(Exception se) {
 					log.error("fail to create Dispatcher thread",se);
 					client.close();

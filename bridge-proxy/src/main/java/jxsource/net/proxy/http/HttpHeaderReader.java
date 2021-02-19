@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
+import jxsource.net.proxy.exception.HttpHeaderReaderException;
 
 /*
  * It is reusable
@@ -30,13 +30,13 @@ public class HttpHeaderReader {
 		int count = 0;
 		for (count = 0; count < size; count++) {
 			buf[count] = (byte) in.read();
+			if(buf[count] == -1) {
+				// input stream close
+				throw new HttpHeaderReaderException();				
+			}
 			if (count > 4 && buf[count] == b10 && buf[count - 1] == b13 && buf[count - 2] == b10 && buf[count - 3] == b13) {
 				break;
 			}
-		}
-		if(count == size) {
-			log.error(String.format("**** Input stream has more then %d bytes: \n%s", size, new String(buf)));
-			throw new HttpHeaderReaderException();
 		}
 		byte[] httpHeaderBytes =  new byte[count];
 		System.arraycopy(buf, 0, httpHeaderBytes, 0, count);

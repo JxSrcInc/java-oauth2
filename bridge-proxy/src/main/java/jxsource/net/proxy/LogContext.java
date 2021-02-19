@@ -5,7 +5,7 @@ package jxsource.net.proxy;
  */
 public class LogContext {
 	private static LogContext me;
-	private Class<?> classLogProcess = LogProcessPrint.class;
+	private String classLogProcess = "jxsource.net.proxy.LogProcessHttp";
 	private LogContext() {}
 	
 	public static LogContext get() {
@@ -15,12 +15,12 @@ public class LogContext {
 		return me;
 	}
 	
-	public LogContext setLogProcess(Class<?> classLogProcess) {
+	public LogContext setLogProcess(String classLogProcess) {
 		this.classLogProcess = classLogProcess;
 		return this;
 	}
 	
-	public LogProcess getLogProcess() throws InstantiationException, IllegalAccessException {
-		return (LogProcess) classLogProcess.newInstance();
+	public LogProcess getLogProcess() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		return (LogProcess) Class.forName(classLogProcess).newInstance();
 	}
 }

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jxsource.net.proxy.http.HttpHeaderReader;
-import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
+import jxsource.net.proxy.exception.HttpHeaderReaderException;
 import jxsource.net.proxy.http.HttpHeader;
 
 public class HttpMessageProcess {
@@ -23,7 +23,7 @@ public class HttpMessageProcess {
 		return this;
 	}
 
-	public void proc() throws Exception {
+	public void proc() throws IOException, HttpHeaderReaderException{
 		content = null;
 		headerBytes = reader.getHeaderBytes(in);
 				handler.init(headerBytes);

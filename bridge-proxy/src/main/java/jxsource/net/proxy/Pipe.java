@@ -9,96 +9,83 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.util.ThreadUtil;
+
 /*
  * Pipe to pass data between client and server
  */
 public class Pipe implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Pipe.class);
-	private InputStream in;
-	private OutputStream out;
-	private OutputStream logOut;
-	private String name;
-	private ActionListener listener;
-	private boolean addTimeout;
+	private volatile InputStream in;
+	private volatile OutputStream out;
+	private volatile OutputStream logOut;
+	private volatile String name;
+	private volatile ActionListener listener;
 
 	public Pipe(String name, InputStream in, OutputStream out, OutputStream logOut) {
-		this(name, in, out, logOut, false);
-	}
-
-	public Pipe(String name, InputStream in, OutputStream out, OutputStream logOut, boolean addTimeout) {
 		this.name = name;
 		this.in = in;
 		this.out = out;
 		this.logOut = logOut;
-		this.addTimeout = addTimeout;
 	}
-	
+
 	public void setListener(ActionListener listener) {
 		this.listener = listener;
 	}
 
-//	private boolean isTimeout(InputStream in) throws IOException, InterruptedException {
-//		boolean timeout = true;
-//		// wait first message up to timeout
-//		for(int i=1; i<10; i++) {
-//			debugLog(String.format("wait %d ms", 10*i));
-//			if(in.available() > 0) {
-//				timeout = false;
-//				break;
-//			} else {
-//				Thread.sleep(10*i);
-//			}
-//		}
-//		return timeout;
-//	}
+	public void removeListener() {
+		log.debug(getLogMsg("remove listener"));
+		this.listener = null;
+	}
+
 	public void run() {
 		log.debug(getLogMsg("start"));
-		Exception exception = new InterruptedException();
 		try {
-//			if(addTimeout && isTimeout(in)) {
-//				throw new IOException("Input stream timeout.");
-//			}
 			byte[] buf = new byte[1024 * 8];
 			int i = 0;
 			boolean isLogOutReady = true;
 			while ((i = in.read(buf)) != -1) {
-				// cannot catch interruption when thread is blocked waiting to read
-				// it just break the try but no exception is catched
-				// don't understand why?
-			    	out.write(buf, 0, i);
-					out.flush();
-					if(isLogOutReady) {
-						try {
-							logOut.write(buf, 0, i);
-							logOut.flush();
-						} catch(Exception e) {
-							// turn logOut off
-							isLogOutReady = false;
-							log.error(getLogMsg("logOut Exception"), e);
-						}
+				out.write(buf, 0, i);
+				out.flush();
+				if (isLogOutReady) {
+					try {
+						logOut.write(buf, 0, i);
+						logOut.flush();
+					} catch (IOException e) {
+						// turn logOut off
+						isLogOutReady = false;
+						log.error(getLogMsg("logOut Exception"), e);
 					}
+				}
 			}
-		} catch(Exception e) {
-			exception = e;
+		} catch (IOException e) {
+			log.debug(getLogMsg("Pipe input/output streamd error"), e);
+			// Notify Worker that this channel closes
+			listener.actionPerformed(new ActionEvent(this, 0, "Notify Worker that Pipe thread stop."));
 		} finally {
 			// Close LogOut Pipe to let LogOut Pipe reader terminate if it still works
 			try {
-				log.debug(getLogMsg("close log output stream"));
+				log.debug(getLogMsg("close logOut stream"));
 				logOut.close();
-			} catch(IOException ioeOut) {}
-			// InputStream in and OutputStream out are not closed here
-			// but action fired on listener will cause Worker to close them
-			// because in and out are for different socket. Worker will handle them better.
+			} catch (IOException ioeOut) {
+			}
+			try {
+				in.close();
+			} catch (IOException e1) {
+			}
+			try {
+				out.close();
+			} catch (IOException e1) {
+			}
+
 		}
-		log.debug(getLogMsg("end - "+exception.toString()));
-		// Notify Worker that this channel closes
-		listener.actionPerformed(new ActionEvent(exception, 0, name));
+		log.debug(getLogMsg("thread stop"));
 	}
-	
+
 	private String getLogMsg(String info) {
-		String msg = String.format("*** Thread(%s): %s(%d) %s",
-				Thread.currentThread().getName(), name, this.hashCode(), info);
+		String msg = String.format("*** %s: %s(%d) %s", ThreadUtil.threadInfo(), name, this.hashCode(), info);
 		return msg;
-		
+
 	}
+
 }

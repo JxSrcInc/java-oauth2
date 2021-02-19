@@ -8,14 +8,15 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@Component
-@Scope("prototype")
+import jxsource.net.proxy.util.ThreadUtil;
+
+//@Component
+//@Scope("prototype")
 public class Worker implements Runnable, ActionListener{
 	private static Logger log = LoggerFactory.getLogger(Worker.class);
 	private static final String pipeClientToServerName = "pipeClientToServer";
@@ -35,15 +36,13 @@ public class Worker implements Runnable, ActionListener{
 	
 	private LogContext context = LogContext.get();
 	private LogProcess logProcess;
+	AtomicBoolean active = new AtomicBoolean(true);
 	
-	public Worker init(Socket client, InputStream clientInput, Socket server) throws IOException, InstantiationException, IllegalAccessException{
-		String msg = String.format("*** Thread(%s): start Worker(%d), client(%s:%d), server(%s:%d)",
-				Thread.currentThread().getName(), this.hashCode(), 
-				client.getInetAddress().getHostName(), client.getPort(),
-				server.getInetAddress().getHostName(), server.getPort());
-		log.debug(msg);
+	public Worker init(Socket client, InputStream clientInput, Socket server) 
+			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException{
 		this.client = client;
 		this.server = server;
+		log.debug(debugInfo("starat"));
 		if(clientInput != null) {
 			this.clientInput = clientInput;
 		} else {
@@ -58,9 +57,9 @@ public class Worker implements Runnable, ActionListener{
 		PipedOutputStream logOutServerToClient = new PipedOutputStream();
 		PipedInputStream logInputStreamServerToClient  = new PipedInputStream(logOutServerToClient);
 		// create working pipe
-		pipeClientToServer = new Pipe(pipeClientToServerName, clientInput, serverOutput, logOutClientToServer, true);
+		pipeClientToServer = new PipeClientToServer(pipeClientToServerName, clientInput, serverOutput, logOutClientToServer);
 		pipeClientToServer.setListener(this);
-		pipeServerToClient = new Pipe(pipeServerToClientName, serverInput, clientOutput, logOutServerToClient);
+		pipeServerToClient = new PipeServerToClient(pipeServerToClientName, serverInput, clientOutput, logOutServerToClient);
 		pipeServerToClient.setListener(this);
 		// create log process
 		logProcess = context.getLogProcess();
@@ -71,11 +70,11 @@ public class Worker implements Runnable, ActionListener{
 	@Override
 	public void run() {
 		try {
-			threadLogProcess = new Thread(logProcess);
+			threadLogProcess = ThreadUtil.createThread(logProcess);
 			threadLogProcess.start();
-			threadClientToServer = new Thread(pipeClientToServer);
+			threadClientToServer = ThreadUtil.createThread(pipeClientToServer);
 			threadClientToServer.start();
-			threadServerToClient = new Thread(pipeServerToClient);
+			threadServerToClient = ThreadUtil.createThread(pipeServerToClient);
 			threadServerToClient.start();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -84,57 +83,64 @@ public class Worker implements Runnable, ActionListener{
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public synchronized void actionPerformed(ActionEvent e) {
+		// both PipeClientToServer and PipeServerToClient will call
+		// but only the first one needs to process - close other pipe
+		if(active.compareAndSet(true,  false)) {
 		String pipeName = e.getActionCommand();
 		String msg = "ActionPerformed: "+e.getActionCommand()+" "+e.getSource().toString();
-		debugLog(msg);
+		log.debug(debugInfo(msg));
 		// stop thread
 		if(pipeName.equals(pipeClientToServerName)) {
-			// TODO: check transaction complete?
-			if(threadServerToClient.isAlive()) {
-				debugLog(String.format("Interrupt %s(%d)", pipeServerToClientName, threadServerToClient.hashCode()));
-				threadServerToClient.interrupt();
-			} else {
-				destroy();
-			}
+				log.debug(debugInfo(String.format("Interrupt %s(%d)", pipeServerToClientName, threadServerToClient.hashCode())));
+				// the best way to close other pipe is close its input stream to release the read block
+				// it is better than using thread interrupt or java event
+				try {
+					serverInput.close();
+				} catch (IOException e1) {}
 		} else {
-			if(threadClientToServer.isAlive()) {
-				debugLog(String.format("Interrupt %s(%d)", pipeClientToServerName, threadClientToServer.hashCode()));
-				threadClientToServer.interrupt();
-			} else {
-				destroy();
-			}
+				log.debug(debugInfo(String.format("Interrupt %s(%d)", pipeClientToServerName, threadClientToServer.hashCode())));
+				// the best way to close other pipe is close its input stream to release the read block
+				// it is better than using thread interrupt or java event
+				try {
+					clientInput.close();
+				} catch (IOException e1) {}
+		}
+		destroy();
+		} else {
+//			System.err.println("Worker skip action");
 		}
 	}
 	private void destroy() {
 		// close sockets
-		debugLog("finished");
-		// TODO: Do we need to close socket's input and output stream?
+		log.debug(debugInfo("destroy Worker and close sockets"));
 		closeSocket(client);
 		closeSocket(server);
+
+		client = null;
+		server = null;
+		clientInput = null;
+		clientOutput = null;
+		serverInput = null;
+		serverOutput = null;
+		pipeClientToServer = null;
+		pipeServerToClient = null;
+		threadClientToServer = null;
+		threadServerToClient = null;
+		
+		threadLogProcess = null;
+		logProcess = null;
 	}
-	private void debugLog(String info) {
-		String msg = String.format("*** Thread(%s): Worker(%d), client(%s:%d), server(%s:%d): %s",
-				Thread.currentThread().getName(), this.hashCode(), 
+	private String debugInfo(String msg) {
+		String info = String.format("*** %s: Worker(%d), client(%s:%d), server(%s:%d): %s",
+				ThreadUtil.threadInfo(), this.hashCode(), 
 				client.getInetAddress().getHostName(), client.getPort(),
 				server.getInetAddress().getHostName(), server.getPort(),
-				info);
-		log.debug(msg);
+				msg);
+		return info;
 		
 	}
 
-	private void closeInputStream(InputStream stream) {
-		try {
-			stream.close();
-		} catch(IOException e) {
-		}
-	}
-	private void closeOutputStream(OutputStream stream) {
-		try {
-			stream.close();
-		} catch(IOException e) {
-		}
-	}
 	private void closeSocket(Socket socket) {
 		try {
 			socket.close();

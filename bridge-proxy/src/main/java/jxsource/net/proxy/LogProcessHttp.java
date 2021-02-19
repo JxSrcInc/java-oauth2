@@ -2,16 +2,10 @@ package jxsource.net.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PushbackInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.http.HttpHeaderReader;
-import jxsource.net.proxy.util.exception.HttpHeaderReaderException;
-import jxsource.net.proxy.http.HttpHeader;
 import jxsource.net.proxy.http.HttpMessageProcess;
 
 public class LogProcessHttp extends LogProcess {
@@ -20,6 +14,8 @@ public class LogProcessHttp extends LogProcess {
 	protected InputStream inServer;
 	protected HttpMessageProcess clientHttpMessageProcess;
 	protected HttpMessageProcess serverHttpMessageProcess;
+	protected boolean clientReady = true;
+	protected boolean serverReady = true;
 	
 	public LogProcessHttp() {
 		
@@ -33,20 +29,29 @@ public class LogProcessHttp extends LogProcess {
 
 	@Override
 	public void run() {
-		log.debug(debugLog("Http log started"));
-		while(true) {
+		log.debug(debugInfo("Http log started"));
+		while(clientReady && serverReady) {
 			try {
 				clientHttpMessageProcess.proc();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.debug(debugInfo("clientHttpMessageProcess Exception"), e);
+				try {
+					inClient.close();
+					clientReady = false;
+				} catch (IOException e1) {
+				}
 			}
 			try {
 				serverHttpMessageProcess.proc();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.debug(debugInfo("serverHttpMessageProcess Exception"), e);
+				serverReady = false;
+				try {
+					inServer.close();
+				} catch (IOException e1) {
+				}
 			}
+			if(clientReady && serverReady) {
 			String msg = String.format(">>> Request:\n%s %s\n<<< Response:\n%s %s",
 					new String(clientHttpMessageProcess.getHeaderBytes()),
 					clientHttpMessageProcess.getContent()==null?"":new String(clientHttpMessageProcess.getContent()),
@@ -54,7 +59,10 @@ public class LogProcessHttp extends LogProcess {
 							serverHttpMessageProcess.getContent()==null?"":new String(serverHttpMessageProcess.getContent())
 							
 					);
-			log.debug("****** Transfer ******\n"+msg);
+			log.info(debugInfo("****** Transfer ******\n"+msg));
+			}
 		}
+		log.debug(debugInfo("thread terminate"));
 	}
+	
 }

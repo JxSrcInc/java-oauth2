@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import jxsource.net.proxy.util.ThreadUtil;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
 
@@ -108,7 +111,7 @@ public class Dispatcher implements Runnable {
 		try {
 			Socket server = getServerSocket();
 			worker.init(client, clientInput, server);
-			new Thread(worker).start();
+			ThreadUtil.createThread(worker).start();
 			log.debug(logMsg("end Dispatcher with starting Worker"));
 		} catch (Exception e) {
 			log.error(logMsg("Fail to start Dispatcher thread"), e);
@@ -120,7 +123,7 @@ public class Dispatcher implements Runnable {
 	}
 
 	private String logMsg(String info) {
-		String msg = String.format("*** Thread(%s): Dispatcher(%d)-client(%s:%d): %s", Thread.currentThread().getName(),
+		String msg = String.format("*** %s: Dispatcher(%d)-client(%s:%d): %s", ThreadUtil.threadInfo(),
 				this.hashCode(), client.getInetAddress().getHostName(), client.getPort(), info);
 		return msg;
 
