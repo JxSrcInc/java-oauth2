@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import javax.net.ServerSocketFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,7 @@ public class ProxySocketServer {
 	public void start() {
 		configuration.config();
 		try {
-			ServerSocket ss = new ServerSocket(port);
+			ServerSocket ss = ServerSocketFactory.getDefault().createServerSocket(port);
 			
 			log.info("listening on " + ss.getInetAddress() + ":" + ss.getLocalPort() + " .....");
 			while (true) {

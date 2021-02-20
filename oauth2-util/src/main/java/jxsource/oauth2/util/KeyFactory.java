@@ -1,5 +1,6 @@
 package jxsource.oauth2.util;
 
+import java.io.FileInputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -61,7 +62,8 @@ public class KeyFactory {
 		KeyInfo info = new KeyInfo();
 		try {
 			KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keystore.load(new ClassPathResource(keystorepath).getInputStream(), password.toCharArray());
+//			keystore.load(new ClassPathResource(keystorepath).getInputStream(), password.toCharArray());
+			keystore.load(new FileInputStream(keystorepath), password.toCharArray());
 
 			Key key = keystore.getKey(alias, password.toCharArray());
 			if (key instanceof PrivateKey) {

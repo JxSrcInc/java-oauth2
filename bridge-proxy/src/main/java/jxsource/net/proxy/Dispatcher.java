@@ -18,6 +18,7 @@ import jxsource.net.proxy.util.ThreadUtil;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
+import javax.net.SocketFactory;
 
 //@Component
 //@Scope("prototype")
@@ -47,7 +48,7 @@ public class Dispatcher implements Runnable {
 		if(bridge) {
 			clientInput = new PushbackInputStream(client.getInputStream());
 			log.debug(logMsg(String.format("connect to %s:%d", serverHost, serverPort)));
-			return new Socket(serverHost, serverPort);
+			return SocketFactory.getDefault().createSocket(serverHost, serverPort);
 		} else {
 			return byProxy();
 		}
