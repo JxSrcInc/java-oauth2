@@ -14,18 +14,19 @@ import jxsource.net.proxy.util.ThreadUtil;
 /*
  * Pipe to pass data between client and server
  */
-public class Pipe implements Runnable {
-	private static Logger log = LoggerFactory.getLogger(Pipe.class);
-	private volatile InputStream in;
-	private volatile OutputStream out;
-	private volatile OutputStream logOut;
-	private volatile String name;
-	private volatile ActionListener listener;
+public abstract class Pipe implements Runnable {
+	protected Logger log = LoggerFactory.getLogger(Pipe.class);
+	protected InputStream in;
+	protected OutputStream out;
+	protected OutputStream logOut;
+	protected String name;
+	protected ActionListener listener;
 
-	public Pipe(String name, InputStream in, OutputStream out, OutputStream logOut) {
+	protected void init(String name, InputStream in, OutputStream out, OutputStream logOut) {
 		this.name = name;
 		this.in = in;
 		this.out = out;
+		// logOut may be null if no output requires 
 		this.logOut = logOut;
 	}
 
@@ -33,41 +34,41 @@ public class Pipe implements Runnable {
 		this.listener = listener;
 	}
 
-	public void removeListener() {
-		log.debug(getLogMsg("remove listener"));
-		this.listener = null;
-	}
+	protected abstract void proc() throws IOException;
 
 	public void run() {
 		log.debug(getLogMsg("start"));
 		try {
-			byte[] buf = new byte[1024 * 8];
-			int i = 0;
-			boolean isLogOutReady = true;
-			while ((i = in.read(buf)) != -1) {
-				out.write(buf, 0, i);
-				out.flush();
-				if (isLogOutReady) {
-					try {
-						logOut.write(buf, 0, i);
-						logOut.flush();
-					} catch (IOException e) {
-						// turn logOut off
-						isLogOutReady = false;
-						log.error(getLogMsg("logOut Exception"), e);
-					}
-				}
-			}
+			proc();
+//			byte[] buf = new byte[1024 * 8];
+//			int i = 0;
+//			boolean isLogOutReady = true;
+//			while ((i = in.read(buf)) != -1) {
+//				out.write(buf, 0, i);
+//				out.flush();
+//				if (isLogOutReady && logOut != null) {
+//					try {
+//						logOut.write(buf, 0, i);
+//						logOut.flush();
+//					} catch (IOException e) {
+//						// turn logOut off
+//						isLogOutReady = false;
+//						log.error(getLogMsg("logOut Exception"), e);
+//					}
+//				}
+//			}
 		} catch (IOException e) {
 			log.debug(getLogMsg("Pipe input/output streamd error"), e);
 			// Notify Worker that this channel closes
 			listener.actionPerformed(new ActionEvent(this, 0, "Notify Worker that Pipe thread stop."));
 		} finally {
-			// Close LogOut Pipe to let LogOut Pipe reader terminate if it still works
-			try {
-				log.debug(getLogMsg("close logOut stream"));
-				logOut.close();
-			} catch (IOException ioeOut) {
+			if (logOut != null) {
+				// Close LogOut Pipe to let LogOut Pipe reader terminate if it still works
+				try {
+					log.debug(getLogMsg("close logOut stream"));
+					logOut.close();
+				} catch (IOException ioeOut) {
+				}
 			}
 			try {
 				in.close();
@@ -82,7 +83,7 @@ public class Pipe implements Runnable {
 		log.debug(getLogMsg("thread stop"));
 	}
 
-	private String getLogMsg(String info) {
+	protected String getLogMsg(String info) {
 		String msg = String.format("*** %s: %s(%d) %s", ThreadUtil.threadInfo(), name, this.hashCode(), info);
 		return msg;
 

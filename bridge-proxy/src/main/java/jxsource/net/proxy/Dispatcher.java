@@ -25,7 +25,7 @@ import javax.net.SocketFactory;
 public class Dispatcher implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Dispatcher.class);
 //	@Autowired
-	private Worker worker = new Worker();
+	private Worker worker = WorkerFactory.build().create();
 //	@Value("${proxy.bridge:false}")
 	private boolean bridge;
 //	@Value("${proxy.server.host}")
@@ -35,6 +35,7 @@ public class Dispatcher implements Runnable {
 
 	private Socket client;
 	private PushbackInputStream clientInput;
+	private AppContext appContext = AppContext.get();
 
 	public Dispatcher init(Socket client, boolean bridge, String serverHost, int serverPort) {
 		this.client = client;
@@ -48,7 +49,7 @@ public class Dispatcher implements Runnable {
 		if(bridge) {
 			clientInput = new PushbackInputStream(client.getInputStream());
 			log.debug(logMsg(String.format("connect to %s:%d", serverHost, serverPort)));
-			return SocketFactory.getDefault().createSocket(serverHost, serverPort);
+			return appContext.getDefaultSocketFactory().createSocket(serverHost, serverPort);
 		} else {
 			return byProxy();
 		}
@@ -103,7 +104,7 @@ public class Dispatcher implements Runnable {
 		if(host == null) {
 			throw new IOException("Cannot find host and port for server.");
 		}
-		return new Socket(host, port);
+		return appContext.getDefaultSocketFactory().createSocket(host, port);
 	}
 
 	@Override

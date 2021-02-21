@@ -13,7 +13,7 @@ public class EchoServerApplicationTests {
 
 	public static void main(String...args) {
 		try {
-			URL url = new URL("http://localhost:9002");
+			URL url = new URL(args[0]);
 			InputStream in = url.openConnection().getInputStream();
 			byte[] buf = new byte[1024*8];
 			int i = 0;

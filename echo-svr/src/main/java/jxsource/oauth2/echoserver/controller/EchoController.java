@@ -61,7 +61,8 @@ public class EchoController {
     	String msg = builder.toString();	
     	HttpHeaders respHeaders = new HttpHeaders();
     	respHeaders.setContentType(MediaType.TEXT_PLAIN);
-    	// TODO: remove 
+    	respHeaders.add("Transfer-Encoding","chunked");
+   	// TODO: remove 
 //    	respHeaders.setAccessControlAllowOrigin("*");
 		ResponseEntity<String> response = new ResponseEntity<String>(msg, respHeaders, HttpStatus.OK);
 		System.out.println("message length: "+msg.length());		

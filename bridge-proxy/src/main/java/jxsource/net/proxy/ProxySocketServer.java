@@ -33,9 +33,9 @@ public class ProxySocketServer {
 	private Configuration configuration;
 	
 	public void start() {
-		configuration.config();
+		AppContext appContext = AppContext.get();
 		try {
-			ServerSocket ss = ServerSocketFactory.getDefault().createServerSocket(port);
+			ServerSocket ss = appContext.getDefaultServerSocketFactory().createServerSocket(port);
 			
 			log.info("listening on " + ss.getInetAddress() + ":" + ss.getLocalPort() + " .....");
 			while (true) {
