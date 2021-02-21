@@ -6,8 +6,6 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.exception.HttpHeaderReaderException;
-
 /*
  * It is reusable
  */
@@ -25,22 +23,32 @@ public class HttpHeaderReader {
 		return new HttpHeaderReader();
 	}
 	// TODO: handle concurrent?
-	public byte[] getHeaderBytes(InputStream in) throws IOException, HttpHeaderReaderException{
-		byte[] buf = new byte[size];
+	public int getHeaderBytes(byte[] buf, int size) throws IOException{
 		int count = 0;
+		int i = 0;
 		for (count = 0; count < size; count++) {
-			buf[count] = (byte) in.read();
-			if(buf[count] == -1) {
-				// input stream close
-				throw new HttpHeaderReaderException();				
-			}
 			if (count > 4 && buf[count] == b10 && buf[count - 1] == b13 && buf[count - 2] == b10 && buf[count - 3] == b13) {
-				break;
+				return count;
 			}
 		}
-		byte[] httpHeaderBytes =  new byte[count];
-		System.arraycopy(buf, 0, httpHeaderBytes, 0, count);
-		return httpHeaderBytes;
+		return -1;
 	}
-	
+//	public byte[] getHeaderBytes(InputStream in) throws IOException{
+//		byte[] buf = new byte[size];
+//		int count = 0;
+//		for (count = 0; count < size; count++) {
+//			buf[count] = (byte) in.read();
+//			if(buf[count] == -1) {
+//				// input stream close
+//				throw new IOException("Input stream close");				
+//			}
+//			if (count > 4 && buf[count] == b10 && buf[count - 1] == b13 && buf[count - 2] == b10 && buf[count - 3] == b13) {
+//				break;
+//			}
+//		}
+//		byte[] httpHeaderBytes =  new byte[count];
+//		System.arraycopy(buf, 0, httpHeaderBytes, 0, count);
+//		return httpHeaderBytes;
+//	}
+
 }

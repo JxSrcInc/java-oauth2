@@ -15,18 +15,23 @@ import org.slf4j.LoggerFactory;
 
 import jxsource.net.proxy.util.ThreadUtil;
 
-//@Component
-//@Scope("prototype")
+/*
+ * Worker sets up input and output streams for 
+ * 	PipeLocalToRemote, PipeRemoteToLocal and LogProcess
+ * 
+ * It also handles event actions fired from PipeLocalToRemote and PipeRemoteToLocal
+ * when one pipe stopped and then stops the other by closing its input stream
+ */
 public class Worker implements Runnable, ActionListener{
 	private static Logger log = LoggerFactory.getLogger(Worker.class);
-	private static final String PipeLocalToRemoteName = PipeLocalToRemote.class.getSimpleName();
-	private static final String PipeRemoteToLocalName = PipeRemoteToLocal.class.getSimpleName();
+	private String PipeLocalToRemoteName; //= PipeLocalToRemote.class.getSimpleName();
+	private String PipeRemoteToLocalName; //= PipeRemoteToLocal.class.getSimpleName();
 	private Socket client;
 	private Socket server;
-	private InputStream localInput;
-	private OutputStream localOutput;
-	private InputStream remoteInput;
-	private OutputStream remoteOutput;
+	private volatile InputStream localInput;
+	private volatile OutputStream localOutput;
+	private volatile InputStream remoteInput;
+	private volatile OutputStream remoteOutput;
 	private PipeLocalToRemote pipeLocalToRemote;
 	private PipeRemoteToLocal pipeRemoteToLocal;
 	private Thread threadLocalToRemote;
@@ -45,11 +50,13 @@ public class Worker implements Runnable, ActionListener{
 	
 	public Worker setPipeRemoteToLocal(PipeRemoteToLocal pipeRemoteToLocal) {
 		this.pipeRemoteToLocal = pipeRemoteToLocal;
+		this.PipeRemoteToLocalName = pipeRemoteToLocal.getClass().getSimpleName();
 		return this;
 	}
 	
 	public Worker setPipeLocalToRemote(PipeLocalToRemote pipeLocalToRemote) {
 		this.pipeLocalToRemote = pipeLocalToRemote;
+		this.PipeLocalToRemoteName = pipeLocalToRemote.getClass().getSimpleName();
 		return this;
 	}
 	
@@ -108,7 +115,7 @@ public class Worker implements Runnable, ActionListener{
 		// both PipeClientToServer and PipeServerToClient will call
 		// but only the first one needs to process - close other pipe
 		if(active.compareAndSet(true,  false)) {
-		String pipeName = e.getActionCommand();
+		String pipeName = e.getSource().getClass().getSimpleName();
 		String msg = "ActionPerformed: "+e.getActionCommand()+" "+e.getSource().toString();
 		log.debug(debugInfo(msg));
 		// stop thread
@@ -118,14 +125,14 @@ public class Worker implements Runnable, ActionListener{
 				// it is better than using thread interrupt or java event
 				try {
 					remoteInput.close();
-				} catch (IOException e1) {}
+				} catch (IOException e1) {e1.printStackTrace();}
 		} else {
 				log.debug(debugInfo(String.format("Interrupt %s(%d)", PipeLocalToRemoteName, threadLocalToRemote.hashCode())));
 				// the best way to close other pipe is close its input stream to release the read block
 				// it is better than using thread interrupt or java event
 				try {
 					localInput.close();
-				} catch (IOException e1) {}
+				} catch (IOException e1) {e1.printStackTrace();}
 		}
 		destroy();
 		} else {

@@ -6,14 +6,14 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.http.HttpMessageProcess;
+import jxsource.net.proxy.http.HttpLogProcess;
 
 public class LogProcessHttp extends LogProcess {
 	private static Logger log = LoggerFactory.getLogger(LogProcessHttp.class);
 	protected InputStream inClient;
 	protected InputStream inServer;
-	protected HttpMessageProcess clientHttpMessageProcess;
-	protected HttpMessageProcess serverHttpMessageProcess;
+//	protected HttpLogProcess clientHttpMessageProcess;
+//	protected HttpLogProcess serverHttpMessageProcess;
 	protected boolean clientReady = true;
 	protected boolean serverReady = true;
 	
@@ -23,13 +23,13 @@ public class LogProcessHttp extends LogProcess {
 	protected void init(InputStream inClient, InputStream inServer) {
 		this.inClient = inClient;
 		this.inServer = inServer;
-		clientHttpMessageProcess = new HttpMessageProcess().init(inClient);
-		serverHttpMessageProcess = new HttpMessageProcess().init(inServer);
 	}
 
 	@Override
 	public void run() {
 		log.debug(debugInfo("Http log started"));
+		HttpLogProcess clientHttpMessageProcess = new HttpLogProcess().init(inClient);
+		HttpLogProcess serverHttpMessageProcess = new HttpLogProcess().init(inServer);
 		while(clientReady && serverReady) {
 			try {
 				clientHttpMessageProcess.proc();

@@ -19,7 +19,7 @@ public class Configuration {
 	
 	@PostConstruct
 	public void init() {
-		System.err.println("proxy.log.process:jxsource.net.proxy.LogProcessPrint="+logProcess);
+		System.err.println("proxy.log.process="+logProcess);
 		System.err.println("proxy.tls.out-going.socket="+tlsClient);
 		System.err.println("proxy.tls.in-coming.server-socket:false="+tlsServer);
 		System.err.println("proxy.export-message="+exportMessage);
