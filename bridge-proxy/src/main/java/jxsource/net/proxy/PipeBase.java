@@ -15,32 +15,38 @@ import jxsource.net.proxy.util.ThreadUtil;
  * Pipe to pass data between client and server
  */
 public class PipeBase extends Pipe {
-	Logger log = LoggerFactory.getLogger(PipeBase.class);
+	Logger logger = LoggerFactory.getLogger(PipeBase.class);
 
 	@Override
-	public void init(String name, InputStream in, OutputStream out, OutputStream logOut) {
-		super.init(name, in, out, logOut);
+	public void init(String name, InputStream in, OutputStream out, Log log, boolean activeLog) {
+		super.init(name, in, out, log, activeLog);
 	}
 
 	protected void proc() throws IOException {
-			byte[] buf = new byte[1024 * 8];
-			int i = 0;
-			boolean isLogOutReady = true;
-			while ((i = in.read(buf)) != -1) {
-				out.write(buf, 0, i);
-				out.flush();
-				if (isLogOutReady && logOut != null) {
-					try {
-						logOut.write(buf, 0, i);
-						logOut.flush();
-					} catch (IOException e) {
-						// turn logOut off
-						isLogOutReady = false;
-						log.error(getLogMsg("logOut Exception"), e);
+		byte[] buf = new byte[1024 * 8];
+		int i = 0;
+		while (true) {
+			try {
+				i = in.read(buf);
+			} catch (Exception ioe) {
+				throw new IOException("Input stream error", ioe);
+			}
+			if (i != -1) {
+				try {
+					out.write(buf, 0, i);
+					out.flush();
+				} catch (Exception ioe) {
+					throw new IOException("Output stream error", ioe);
+				}
+				if (activeLog && log != null) {
+					if (name.contains(Constants.LocalToRemote)) {
+						log.logLocalToRemote(buf, 0, i);
+					} else {
+						log.logRemoteToLocal(buf, 0, i);
 					}
 				}
 			}
+		}
 	}
-
 
 }

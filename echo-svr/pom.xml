@@ -62,6 +62,13 @@
     <artifactId>jaxb-runtime</artifactId>
     <version>2.3.2</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-shared-utils -->
+<dependency>
+    <groupId>org.apache.maven.shared</groupId>
+    <artifactId>maven-shared-utils</artifactId>
+    <version>3.2.1</version>
+</dependency>
+
 		
 	</dependencies>
 

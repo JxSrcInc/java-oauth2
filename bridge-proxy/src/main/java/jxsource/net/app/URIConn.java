@@ -19,8 +19,8 @@ public class URIConn {
 	}
 	void conn() throws Exception {
 		URL url = new URL("https://devws.ba.ssa.gov:8443/cmmc/CmmcService?serviceName=CWASSI");
-		url = new URL("https://jenkins-m1.ba.ssa.gov/job/ACCS/job/repos/job/accs-template-service/job/develop/292/consoleText");
-//		url = new URL("https://devws.ba.ssa.gov:444/WSRR/7.5/Metadata/XML/Query/DataPowerProxyEndpointLookupBySLA?p1=DCSFTCv01.0&p2=FOLOv01.0");
+		url = new URL("https://www.google.com");
+//		url = new URL("http://localhost");
 //		url = new URL("https://valws.ba.ssa.gov:447/olcore/OfficeLookupCoreService?OFFICECODEA=1734001&QUERYTYPE=B&APPLICATION=CoreServices_TEST");
 		URLConnection conn = url.openConnection();
 //		conn.setRequestProperty("Sec-Fetch-Mode", "cors");

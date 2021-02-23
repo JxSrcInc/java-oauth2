@@ -1,7 +1,10 @@
 package jxsource.net.proxy;
 
+import jxsource.net.proxy.http.HttpRequestEditor;
+import jxsource.net.proxy.http.HttpPipeContext;
 import jxsource.net.proxy.http.HttpPipeLocalToRemote;
 import jxsource.net.proxy.http.HttpPipeRemoteToLocal;
+import jxsource.net.proxy.http.HttpResponselEditor;
 
 public class WorkerFactory {
 
@@ -11,16 +14,24 @@ public class WorkerFactory {
 		return new WorkerFactory();
 	}
 
-	public Worker create() {
-		if (appContext.getLogProcess() instanceof LogProcessPrint) {
+	public Worker create(String remoteHost, int remotePort) {
+		if (appContext.getLog() instanceof PrintLog) {
 			return new Worker().setPipeLocalToRemote(new PipeLocalToRemote())
 					.setPipeRemoteToLocal(new PipeRemoteToLocal())
-					.setLogProcess(appContext.getLogProcess());
+					.setLog(appContext.getLog(), appContext.isActiveLog());
 		} else {
-			// LogProcessHttp
-			return new Worker().setPipeLocalToRemote(new HttpPipeLocalToRemote())
-					.setPipeRemoteToLocal(new HttpPipeRemoteToLocal())
-					.setLogProcess(appContext.getLogProcess());
+			HttpPipeContext requestContext = new HttpPipeContext()
+					.setRemoteHost(remoteHost).setRemotePort(remotePort)
+					.setHttpHeaderEditor(new HttpRequestEditor());
+			HttpPipeContext responseContext = new HttpPipeContext()
+					.setRemoteHost(remoteHost).setRemotePort(remotePort)
+					.setHttpHeaderEditor(new HttpResponselEditor());
+			
+			return new Worker().setPipeLocalToRemote(new HttpPipeLocalToRemote()
+						.setHttpPipeContext(requestContext))
+					.setPipeRemoteToLocal(new HttpPipeRemoteToLocal()
+							.setHttpPipeContext(responseContext))
+					.setLog(appContext.getLog(), appContext.isActiveLog());
 //					.setLogProcess(null);
 		}
 	}

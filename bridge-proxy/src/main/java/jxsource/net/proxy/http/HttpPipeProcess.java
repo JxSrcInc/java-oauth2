@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.Log;
 import jxsource.net.proxy.Pipe;
 import jxsource.net.proxy.util.ThreadUtil;
 
@@ -15,70 +16,84 @@ import jxsource.net.proxy.util.ThreadUtil;
  * Base class to handle each Pipe for Http.
  */
 public class HttpPipeProcess {
-	private Logger log = LoggerFactory.getLogger(HttpPipeProcess.class);
+//	private Logger logger = LoggerFactory.getLogger(HttpPipeProcess.class);
 	private InputStream in;
 	private OutputStream out;
-	private OutputStream logOut;
+	private Log appLog;
 	private HttpHeaderReader reader = HttpHeaderReader.build();
 	private HttpHeader handler = HttpHeader.build();
 	private String name;
-	private boolean logOutReady = true;
+	private HttpPipeContext context;
 	
 	public static HttpPipeProcess build() {
 		return new HttpPipeProcess();
 	}
-	public HttpPipeProcess init(String name, InputStream in, OutputStream out, OutputStream logOut) {
+
+	public HttpPipeProcess init(String name, InputStream in, OutputStream out, Log appLog, HttpPipeContext context) {
 		this.in = in;
 		this.out = out;
-		// logOut may be null if no output requires 
-		this.logOut = logOut;
+		// logOut may be null if no output requires
+		this.appLog = appLog;
 		this.name = name;
+		this.context = context;
 		return this;
 	}
-	
-	public void proc() throws IOException{
+
+	public void proc() throws IOException {
 		// buf must be large enough to contain all HTTP headers
-		byte[] buf = new byte[1024*8];
+		byte[] buf = new byte[1024 * 8];
 		int i = 0;
 		int bodyStart = 0;
-		while ((i = in.read(buf, bodyStart, buf.length-bodyStart)) != -1) {
-			bodyStart += i;
-			while(reader.getHeaderBytes(buf, bodyStart) < 0);
-			output(buf, 0, bodyStart);
-			byte[] headerBytes = new byte[bodyStart];
-			System.arraycopy(buf, 0, headerBytes, 0, bodyStart);
-			handler.init(headerBytes);
-			String contentLength = handler.getHeaderValue("Content-Length");
-			if(contentLength != null) {
-				procContentLength(Integer.parseInt(contentLength), in);
+		while (true) {
+			try {
+				i = in.read(buf, bodyStart, buf.length - bodyStart);
+			} catch (Exception ioe) {
+				throw new IOException("Input stream error", ioe);
+			}
+			if (i != -1) {
+				bodyStart += i;
+				while (reader.getHeaderBytes(buf, bodyStart) < 0)
+					;
+				byte[] headerBytes = new byte[bodyStart];
+				System.arraycopy(buf, 0, headerBytes, 0, bodyStart);
+				handler.init(headerBytes);
+				// TODO: modify header
+				headerBytes = context.getHttpHeaderEditor().edit(headerBytes);
+				try {
+					output(headerBytes);
+				} catch (Exception e) {
+					throw new IOException(name + " output Http header error", e);
+				}
+				String contentLength = handler.getHeaderValue("Content-Length");
+				if (contentLength != null) {
+					procContentLength(Integer.parseInt(contentLength), in);
+				}
 			}
 		}
 	}
-	
+
 	public void procContentLength(int length, InputStream in) throws IOException {
 		byte[] content = new byte[length];
 		int pos = 0;
-		while(pos<length) {
-			int i = in.read(content,pos,length-pos);
-			pos += i;
-		}
-		output(content, 0,length);
-	}
-	
-	private void output(byte[] data, int offset, int length) throws IOException{
-//		System.out.print(new String(data, offset, length));
-		out.write(data, offset, length);
-		out.flush();
-		if (logOutReady && logOut != null) {
+		while (pos < length) {
 			try {
-				logOut.write(data);
-				logOut.flush();
-			} catch (IOException e) {
-				// turn logOut off
-				logOutReady = false;
-				log.error(getLogMsg("logOut Exception"), e);
+				int i = in.read(content, pos, length - pos);
+				pos += i;
+			} catch (Exception ioe) {
+				throw new IOException("Output stream error", ioe);
 			}
 		}
+		try {
+			output(content);
+		} catch (Exception e) {
+			throw new IOException(name + " output Http body error", e);
+		}
+	}
+
+	private void output(byte[] data) throws IOException {
+		out.write(data);
+		out.flush();
+		appLog.logPipe(name, data);
 	}
 
 	protected String getLogMsg(String info) {

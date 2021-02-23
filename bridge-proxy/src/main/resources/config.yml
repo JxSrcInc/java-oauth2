@@ -1,0 +1,4 @@
+  host:localhost
+  port:8903
+  ssl:false
+  http:false

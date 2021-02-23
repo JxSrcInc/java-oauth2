@@ -1,10 +1,16 @@
 package jxsource.net.proxy;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
@@ -20,44 +26,66 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpParser;
 import javax.net.SocketFactory;
 
-//@Component
-//@Scope("prototype")
 public class Dispatcher implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Dispatcher.class);
 //	@Autowired
-	private Worker worker = WorkerFactory.build().create();
+	private Worker worker;
 //	@Value("${proxy.bridge:false}")
 	private boolean bridge;
 //	@Value("${proxy.server.host}")
-	private String serverHost;
+	private String remoteHost;
 //	@Value("${proxy.server.port}")
-	private int serverPort;
+	private int remotePort;
+
+	private int socketTimeout = 3;
+	private volatile int count = 0;
 
 	private Socket client;
-	private PushbackInputStream clientInput;
+	private InputStream clientInput;
 	private AppContext appContext = AppContext.get();
 
 	public Dispatcher init(Socket client, boolean bridge, String serverHost, int serverPort) {
 		this.client = client;
 		this.bridge = bridge;
-		this.serverHost = serverHost;
-		this.serverPort = serverPort;
+		this.remoteHost = serverHost;
+		this.remotePort = serverPort;
 		return this;
 	}
 
-	private Socket getServerSocket() throws IOException {
-		if(bridge) {
-			clientInput = new PushbackInputStream(client.getInputStream());
-			log.debug(logMsg(String.format("connect to %s:%d", serverHost, serverPort)));
-			return appContext.getDefaultSocketFactory().createSocket(serverHost, serverPort);
+	private Socket getRemoteSocket() throws UnknownHostException {
+		InetAddress addr = InetAddress.getByName(remoteHost);
+		SocketAddress sockaddr = new InetSocketAddress(addr, remotePort);
+		while (count < 3) {
+			int timeout = (socketTimeout * (count++)) * 1000;
+			try {
+				log.debug(
+						logMsg(String.format("connect to %s:%d with timeout %d sec", remoteHost, remotePort, timeout)));
+				Socket s = appContext.getDefaultSocketFactory().createSocket();
+				s.setSoTimeout(timeout);
+				s.connect(sockaddr);
+				return s;
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				String msg = String.format("Re-connect(%d) to %s(%d) with timeout %d", count, remoteHost, remotePort, timeout);
+				System.err.println(logMsg(msg));
+			}
+		}
+		return null;
+
+	}
+
+	private void prepare() throws IOException {
+		if (bridge) {
+			clientInput = client.getInputStream();
 		} else {
-			return byProxy();
+			prepareHostFromRequest();
 		}
 	}
-	private Socket byProxy() throws IOException{
+
+	private void prepareHostFromRequest() throws IOException {
 		// size must be large enough to contain all headers
 		int size = 1024 * 8;
-		clientInput = new PushbackInputStream(client.getInputStream(), size);
+		PushbackInputStream clientInput = new PushbackInputStream(client.getInputStream(), size);
 		byte[] buf = new byte[size];
 		byte b13 = 13;
 		byte b10 = 10;
@@ -65,9 +93,10 @@ public class Dispatcher implements Runnable {
 		for (count = 0; count < size; count++) {
 			buf[count] = (byte) clientInput.read();
 			// check end HTTP headers
-			// the original input stream (client.getInputStream() cannot be consumed completely
+			// the original input stream (client.getInputStream() cannot be consumed
+			// completely
 			// it must have at least one byte.
-			// otherwise unread() method will not work. 
+			// otherwise unread() method will not work.
 			// look the re-read from original input stream is block.
 			// so check of end headers is based on [13][10][13] not [13][10][13][10]
 			// which keeps the last headers byte [10] in the original input stream
@@ -82,39 +111,38 @@ public class Dispatcher implements Runnable {
 		// let buf be a complete headers
 		buf[count] = b10;
 		// TODO: parse HTTP headers
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf,0,count+1);
-		String line = HttpParser.readLine(byteArrayInputStream,Charset.defaultCharset().name());
-		Header[] headers = HttpParser.parseHeaders(byteArrayInputStream,Charset.defaultCharset().name());
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buf, 0, count + 1);
+		String line = HttpParser.readLine(byteArrayInputStream, Charset.defaultCharset().name());
+		Header[] headers = HttpParser.parseHeaders(byteArrayInputStream, Charset.defaultCharset().name());
 		String host = null;
 		int port = 0;
-		for(Header header: headers) {
-			if(header.getName().equals("Host")) {
+		for (Header header : headers) {
+			if (header.getName().equals("Host")) {
 				String value = header.getValue();
 				int index = value.indexOf(":");
-				if(index == -1) {
+				if (index == -1) {
 					host = value;
 					port = 80;
 				} else {
-					host = value.substring(0,index);
-					port = Integer.parseInt(value.substring(index+1));
+					host = value.substring(0, index);
+					port = Integer.parseInt(value.substring(index + 1));
 				}
 				break;
 			}
 		}
-		if(host == null) {
+		if (host == null) {
 			throw new IOException("Cannot find host and port for server.");
 		}
-		return appContext.getDefaultSocketFactory().createSocket(host, port);
+		remoteHost = host;
+		remotePort = port;
 	}
 
 	@Override
 	public void run() {
 		log.debug(logMsg("start Dispatcher"));
 		try {
-			Socket server = getServerSocket();
-			worker.init(client, clientInput, server);
-			ThreadUtil.createThread(worker).start();
-			log.debug(logMsg("end Dispatcher with starting Worker"));
+			prepare();
+			dispatch();
 		} catch (Exception e) {
 			log.error(logMsg("Fail to start Dispatcher thread"), e);
 			try {
@@ -124,10 +152,22 @@ public class Dispatcher implements Runnable {
 		}
 	}
 
+	private void dispatch() throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+		Socket remoteSocket = getRemoteSocket();
+		if (remoteSocket == null) {
+			throw new IOException();
+		}
+		worker = WorkerFactory.build().create(remoteHost, remotePort);
+		worker.init(client, clientInput, remoteSocket);
+		ThreadUtil.createThread(worker).start();
+		log.debug(logMsg("end Dispatcher with starting Worker"));
+	}
+
 	private String logMsg(String info) {
-		String msg = String.format("*** %s: Dispatcher(%d)-client(%s:%d): %s", ThreadUtil.threadInfo(),
+		String msg = String.format("\n\t*** %s: Dispatcher(%d)-client(%s:%d): %s", ThreadUtil.threadInfo(),
 				this.hashCode(), client.getInetAddress().getHostName(), client.getPort(), info);
 		return msg;
 
 	}
+
 }

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -22,12 +23,12 @@ import jxsource.net.proxy.util.ThreadUtil;
  * It also handles event actions fired from PipeLocalToRemote and PipeRemoteToLocal
  * when one pipe stopped and then stops the other by closing its input stream
  */
-public class Worker implements Runnable, ActionListener{
-	private static Logger log = LoggerFactory.getLogger(Worker.class);
-	private String PipeLocalToRemoteName; //= PipeLocalToRemote.class.getSimpleName();
-	private String PipeRemoteToLocalName; //= PipeRemoteToLocal.class.getSimpleName();
-	private Socket client;
-	private Socket server;
+public class Worker implements Runnable, ActionListener {
+	private static Logger logger = LoggerFactory.getLogger(Worker.class);
+	private String PipeLocalToRemoteName; // = PipeLocalToRemote.class.getSimpleName();
+	private String PipeRemoteToLocalName; // = PipeRemoteToLocal.class.getSimpleName();
+	private Socket localSocket;
+	private Socket remoteSocket;
 	private volatile InputStream localInput;
 	private volatile OutputStream localOutput;
 	private volatile InputStream remoteInput;
@@ -36,59 +37,50 @@ public class Worker implements Runnable, ActionListener{
 	private PipeRemoteToLocal pipeRemoteToLocal;
 	private Thread threadLocalToRemote;
 	private Thread threadRemoteToLocal;
-	
-	// if logProcess is null, no threadLogProcess run
-	private LogProcess logProcess;
-	private Thread threadLogProcess;
 
+	// if logProcess is null, no threadLogProcess run
+	private Log log;
+	private boolean activeLog;
 	private AtomicBoolean active = new AtomicBoolean(true);
-	
-	public Worker setLogProcess(LogProcess logProcess) {
-		this.logProcess = logProcess;
+
+	public Worker setLog(Log log, boolean activeLog) {
+		this.log = log;
+		this.activeLog = activeLog;
 		return this;
 	}
-	
+
 	public Worker setPipeRemoteToLocal(PipeRemoteToLocal pipeRemoteToLocal) {
 		this.pipeRemoteToLocal = pipeRemoteToLocal;
 		this.PipeRemoteToLocalName = pipeRemoteToLocal.getClass().getSimpleName();
 		return this;
 	}
-	
+
 	public Worker setPipeLocalToRemote(PipeLocalToRemote pipeLocalToRemote) {
 		this.pipeLocalToRemote = pipeLocalToRemote;
 		this.PipeLocalToRemoteName = pipeLocalToRemote.getClass().getSimpleName();
 		return this;
 	}
-	
-	public Worker init(Socket client, InputStream clientInput, Socket server) 
-			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException{
-		this.client = client;
-		this.server = server;
-		log.debug(debugInfo("starat"));
-		if(clientInput != null) {
+
+	public Worker init(Socket client, InputStream clientInput, Socket server)
+			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		this.localSocket = client;
+		this.remoteSocket = server;
+		logger.debug(debugInfo("starat"));
+		if (clientInput != null) {
 			this.localInput = clientInput;
 		} else {
 			this.localInput = client.getInputStream();
 		}
-		localOutput = this.client.getOutputStream();
-		remoteInput = this.server.getInputStream();
-		remoteOutput = this.server.getOutputStream();
+		localOutput = this.localSocket.getOutputStream();
+		remoteInput = this.remoteSocket.getInputStream();
+		remoteOutput = this.remoteSocket.getOutputStream();
 		// create log pipe
 		PipedOutputStream logOutClientToServer = null;
 		PipedOutputStream logOutServerToClient = null;
-		// if logProcess is null, no threadLogProcess run
-		if(logProcess != null) {
-		logOutClientToServer = new PipedOutputStream();
-		PipedInputStream logInputStreamClientToServer  = new PipedInputStream(logOutClientToServer);
-		logOutServerToClient = new PipedOutputStream();
-		PipedInputStream logInputStreamServerToClient  = new PipedInputStream(logOutServerToClient);
-		// create log process
-		logProcess.init(logInputStreamClientToServer, logInputStreamServerToClient);
-		}
 		// create working pipe
-		pipeLocalToRemote.init(PipeLocalToRemoteName, clientInput, remoteOutput, logOutClientToServer);
+		pipeLocalToRemote.init(PipeLocalToRemoteName, clientInput, remoteOutput, log, activeLog);
 		pipeLocalToRemote.setListener(this);
-		pipeRemoteToLocal.init(PipeRemoteToLocalName, remoteInput, localOutput, logOutServerToClient);
+		pipeRemoteToLocal.init(PipeRemoteToLocalName, remoteInput, localOutput, log, activeLog);
 		pipeRemoteToLocal.setListener(this);
 		return this;
 	}
@@ -96,10 +88,6 @@ public class Worker implements Runnable, ActionListener{
 	@Override
 	public void run() {
 		try {
-			if(logProcess != null) {
-				threadLogProcess = ThreadUtil.createThread(logProcess);
-				threadLogProcess.start();
-			}
 			threadLocalToRemote = ThreadUtil.createThread(pipeLocalToRemote);
 			threadLocalToRemote.start();
 			threadRemoteToLocal = ThreadUtil.createThread(pipeRemoteToLocal);
@@ -114,65 +102,74 @@ public class Worker implements Runnable, ActionListener{
 	public synchronized void actionPerformed(ActionEvent e) {
 		// both PipeClientToServer and PipeServerToClient will call
 		// but only the first one needs to process - close other pipe
-		if(active.compareAndSet(true,  false)) {
-		String pipeName = e.getSource().getClass().getSimpleName();
-		String msg = "ActionPerformed: "+e.getActionCommand()+" "+e.getSource().toString();
-		log.debug(debugInfo(msg));
-		// stop thread
-		if(pipeName.equals(PipeLocalToRemoteName)) {
-				log.debug(debugInfo(String.format("Interrupt %s(%d)", PipeRemoteToLocalName, threadRemoteToLocal.hashCode())));
-				// the best way to close other pipe is close its input stream to release the read block
-				// it is better than using thread interrupt or java event
-				try {
-					remoteInput.close();
-				} catch (IOException e1) {e1.printStackTrace();}
+		if (active.compareAndSet(true, false)) {
+			String pipeName = e.getSource().getClass().getSimpleName();
+			String msg = "Reciev event: " + e.getActionCommand() + " " + e.getSource().toString();
+			logger.debug(debugInfo(msg));
+			// handle remote socket timeout
+				// stop thread
+				if (pipeName.equals(PipeLocalToRemoteName)) {
+					logger.debug(debugInfo(
+							String.format("Interrupt %s(%d)", PipeRemoteToLocalName, threadRemoteToLocal.hashCode())));
+					// the best way to close other pipe is close its input stream to release the
+					// read block
+					// it is better than using thread interrupt or java event
+					try {
+						remoteInput.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					logger.debug(debugInfo(
+							String.format("Interrupt %s(%d)", PipeLocalToRemoteName, threadLocalToRemote.hashCode())));
+					// the best way to close other pipe is close its input stream to release the
+					// read block
+					// it is better than using thread interrupt or java event
+					try {
+						localInput.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				logger.debug(debugInfo("destroy worker"));
+				destroy();
 		} else {
-				log.debug(debugInfo(String.format("Interrupt %s(%d)", PipeLocalToRemoteName, threadLocalToRemote.hashCode())));
-				// the best way to close other pipe is close its input stream to release the read block
-				// it is better than using thread interrupt or java event
-				try {
-					localInput.close();
-				} catch (IOException e1) {e1.printStackTrace();}
-		}
-		destroy();
-		} else {
-//			System.err.println("Worker skip action");
+			System.err.println("Worker skip event process. - may remove later");
 		}
 	}
-	private void destroy() {
-		// close sockets
-		log.debug(debugInfo("destroy Worker and close sockets"));
-		closeSocket(client);
-		closeSocket(server);
 
-		client = null;
-		server = null;
+	/*
+	 * Input streams and output streams are left for Pipes to close
+	 * either when local or remote connection ends 
+	 * or when Worker handles Pipe triggered event
+	 */
+	private void destroy() {
+		closeSocket(localSocket);		
+		closeSocket(remoteSocket);
+		localSocket = null;
 		localInput = null;
 		localOutput = null;
+		pipeLocalToRemote = null;
+		threadLocalToRemote = null;		
+		remoteSocket = null;
 		remoteInput = null;
 		remoteOutput = null;
-		pipeLocalToRemote = null;
 		pipeRemoteToLocal = null;
-		threadLocalToRemote = null;
 		threadRemoteToLocal = null;
-		
-		threadLogProcess = null;
-		logProcess = null;
 	}
+
 	private String debugInfo(String msg) {
-		String info = String.format("*** %s: Worker(%d), client(%s:%d), server(%s:%d): %s",
-				ThreadUtil.threadInfo(), this.hashCode(), 
-				client.getInetAddress().getHostName(), client.getPort(),
-				server.getInetAddress().getHostName(), server.getPort(),
-				msg);
+		String info = String.format("\n\t*** %s: Worker(%d), remoteSocket(%s:%d): %s", ThreadUtil.threadInfo(),
+				this.hashCode(), 
+				remoteSocket.getInetAddress().getHostName(), remoteSocket.getPort(), msg);
 		return info;
-		
+
 	}
 
 	private void closeSocket(Socket socket) {
 		try {
 			socket.close();
-		} catch(IOException e) {
+		} catch (IOException e) {
 		}
 	}
 

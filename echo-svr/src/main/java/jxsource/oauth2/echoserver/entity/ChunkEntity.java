@@ -5,33 +5,36 @@ public class ChunkEntity {
 	public static final char LF = 10;
 	public static final char[] CRLF = new char[] {CR,LF};
 
-	public StringBuilder getChunkHead(long size) {
+
+	public static ChunkEntity build() {
+		return new ChunkEntity();
+	}
+	public String getChunkHead(long size) {
 		return getChunkHeadwithExtension(size, "");
 	}
 	/*
 	 * extension must start with ';'
 	 */
-	public StringBuilder getChunkHeadwithExtension(long size, String extension) {
+	public String getChunkHeadwithExtension(long size, String extension) {
 		String s = Long.toHexString(size)+extension;
-		StringBuilder ba = new StringBuilder();
-		ba.append(s.getBytes());
-		ba.append(CRLF);
-		return ba;
+		s += new String(CRLF);
+		return s;
 	}
 
 	// create single chunk
-	public StringBuilder createChunk(char[] val) {
-		StringBuilder chunk = getChunkHead(val.length);
-		chunk.append(val);
-		chunk.append(CRLF);
+	public String createChunk(char[] val) {
+		String chunk = getChunkHead(val.length);
+		chunk += new String(val);
+		chunk += new String(CRLF);
 		return chunk;
 	}
-//	public StringBuilder createChunk(String val) {
-//		StringBuilder chunk = getChunkHead(val.length());
-//		chunk.append(val);
-//		chunk.append(CRLF);
-//		return chunk;
-//	}
+
+	public String createChunk(String val) {
+		String chunk = getChunkHead(val.length());
+		chunk += new String(val);
+		chunk += new String(CRLF);
+		return chunk;
+	}
 	
 	public StringBuilder createLastChunk() {
 		StringBuilder lastChunk = new StringBuilder();
@@ -41,19 +44,22 @@ public class ChunkEntity {
 	}
 
 	// create multi chunks with each having length equals "size"
-	public StringBuilder createChunk(int size, char[] val) {
-		int len = Math.max(size, val.length);
+	public String createChunk(int size, String val) {
+		int len = Math.max(size, val.length());
 		int pos = 0;
 		int blockPos = 0;
-		StringBuilder entity = new StringBuilder();
-		int blockSize = Math.min(size, val.length);
+		String entity = "";
+		int blockSize = Math.min(size, val.length());
+		int leftLen = val.length();
 		char[] block = null;
 		do {
 			block = new char[blockSize];
 			for(blockPos=0; blockPos<blockSize; blockPos++) {
-				block[blockPos] = val[pos++];
+				block[blockPos] = val.charAt(pos++);
 			}
-			entity = createChunk(block);
+			entity += createChunk(block);
+			leftLen = leftLen-size;
+			blockSize = Math.min(size, leftLen);
 		} while(pos < len);
 		
 //		

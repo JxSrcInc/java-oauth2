@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jxsource.oauth2.echoserver.entity.ChunkEntity;
 import jxsource.oauth2.util.HttpServletRequestJsonNodeBuilder;
 import jxsource.oauth2.util.Util;
 
@@ -31,6 +33,7 @@ import jxsource.oauth2.util.Util;
 public class EchoController {
 	private static Logger logger = LoggerFactory.getLogger(EchoController.class);
 	ObjectMapper mapper = new ObjectMapper();
+	
 	@CrossOrigin(origins = "*")
 	@RequestMapping("/**")
 	@ResponseBody
@@ -50,23 +53,50 @@ public class EchoController {
 	}
 
 	@CrossOrigin(origins = "*")
+	@RequestMapping("/wait")
+	@ResponseBody
+	public ResponseEntity<String> wait2(  
+            HttpServletRequest request) throws JsonProcessingException, IOException {
+    	JsonNode info = new HttpServletRequestJsonNodeBuilder()
+    			.setRequest(request).loadContent().build();
+    	String msg = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(info);
+		logger.debug("\n"+msg);		
+		try {
+			Thread.sleep(1000*5);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	HttpHeaders respHeaders = new HttpHeaders();
+    	respHeaders.setContentType(MediaType.TEXT_PLAIN);
+    	// TODO: remove 
+//    	respHeaders.setAccessControlAllowOrigin("*");
+		ResponseEntity<String> response = new ResponseEntity<String>(msg, respHeaders, HttpStatus.OK);
+		logger.debug("\n"+Util.getResponse(response));		
+		return response;
+	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping("/chunk")
 	@ResponseBody
-	public ResponseEntity<String> testChunk(  
-            HttpServletRequest request) throws JsonProcessingException, IOException {
+	public byte[] testChunk(  
+            HttpServletRequest request,
+            HttpServletResponse resp) throws JsonProcessingException, IOException {
 		StringBuilder builder = new StringBuilder();
 		for(int i=0; i<100; i++) {
 			builder.append("1234567890");
 		}
     	String msg = builder.toString();	
-    	HttpHeaders respHeaders = new HttpHeaders();
-    	respHeaders.setContentType(MediaType.TEXT_PLAIN);
-    	respHeaders.add("Transfer-Encoding","chunked");
+    	msg = ChunkEntity.build().createChunk(50, msg);
+    	resp.addHeader("Transfer-Encoding","chunked");
+//    	HttpHeaders respHeaders = new HttpHeaders();
+//    	respHeaders.setContentType(MediaType.TEXT_PLAIN);
+//    	respHeaders.add("Transfer-Encoding","chunked");
    	// TODO: remove 
 //    	respHeaders.setAccessControlAllowOrigin("*");
-		ResponseEntity<String> response = new ResponseEntity<String>(msg, respHeaders, HttpStatus.OK);
-		System.out.println("message length: "+msg.length());		
-		return response;
+//		ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(msg.getBytes(), respHeaders, HttpStatus.OK);
+//		System.out.println("message length: "+msg.length());		
+		return msg.getBytes();
 	}
 
 	@CrossOrigin(origins = "*")

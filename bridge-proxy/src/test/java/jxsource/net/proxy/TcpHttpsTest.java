@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 public class TcpHttpsTest {
@@ -19,12 +20,14 @@ public class TcpHttpsTest {
 	}
 	public void run(String...args) {
 		try {
-//		    InetAddress addr = InetAddress.getByName("localhost");
-//		    int port = 8903;
-		    InetAddress addr = InetAddress.getByName(args[0]);
-		    int port = Integer.parseInt(args[1]);
+		    InetAddress addr = InetAddress.getByName("localhost");
+		    int port = 9004;
+//		    InetAddress addr = InetAddress.getByName("www.google.com");
+//		    int port = 443;//Integer.parseInt(args[1]);
 		    SocketAddress sockaddr = new InetSocketAddress(addr, port);
-			Socket s = SSLSocketFactory.getDefault().createSocket();
+//			Socket s = SSLSocketFactory.getDefault().createSocket();
+			Socket s = SocketFactory.getDefault().createSocket();
+//			s.setSoTimeout(10000);
 			s.connect(sockaddr);
 			byte[] buf = loadRequest();
 			OutputStream out = s.getOutputStream();

@@ -11,11 +11,33 @@ import javax.net.ssl.SSLSocketFactory;
 public class AppContext {
 	private static AppContext me;
 //	private String classLogProcess = "jxsource.net.proxy.LogProcessHttp";
-	private LogProcess logProcess;;
+	private Log log;
 	private boolean tlsOutGoingSocket = false;
 	private boolean tlsInCommingServerSocket = false;
-	private AppContext() {}
+	private boolean activeLog = false;
+	private boolean http = true;
+
 	
+	private AppContext() {}
+		
+	public boolean isHttp() {
+		return http;
+	}
+
+	public void setHttp(boolean http) {
+		this.http = http;
+	}
+
+
+	public boolean isActiveLog() {
+		return activeLog;
+	}
+
+	public AppContext setActiveLog(boolean activeLog) {
+		this.activeLog = activeLog;
+		return this;
+	}
+
 	public static AppContext get() {
 		if(me == null) {
 			me = new AppContext();
@@ -23,13 +45,13 @@ public class AppContext {
 		return me;
 	}
 	
-	public AppContext setLogProcess(String classLogProcess) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		logProcess = (LogProcess) Class.forName(classLogProcess).newInstance();
+	public AppContext setLog(String classLog) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		log = (Log) Class.forName(classLog).newInstance();
 		return this;
 	}
 	
-	public LogProcess getLogProcess() {
-		return logProcess;
+	public Log getLog() {
+		return log;
 	}
 	
 	public AppContext setTlsOutGoingSocket(boolean tls) {
@@ -52,7 +74,6 @@ public class AppContext {
 		} else {
 			sf = getSocketFactory();
 		}
-		System.err.println(this.getClass().getSimpleName()+": "+sf.getClass().getSimpleName());		
 		return sf;
 	}
 
@@ -76,7 +97,6 @@ public class AppContext {
 		} else {
 			ssf = getServerSocketFactory();
 		}
-		System.err.println(this.getClass().getSimpleName()+": "+ssf.getClass().getSimpleName());
 		return ssf;
 	}
 

@@ -8,29 +8,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class Configuration {
 
-	@Value("${proxy.log.process:jxsource.net.proxy.LogProcessPrint}")
-	String logProcess;
+	@Value("${proxy.log:jxsource.net.proxy.PrintLog}")
+	String log;
 	@Value("${proxy.tls.out-going.socket:false}")
-	boolean tlsClient;
+	boolean tlsOutGoing;
 	@Value("${proxy.tls.in-coming.server-socket:false}")
-	boolean tlsServer;
+	boolean thsInComing;
 	@Value("${proxy.export-message:true}")
 	boolean exportMessage;
 	
 	@PostConstruct
 	public void init() {
-		System.err.println("proxy.log.process="+logProcess);
-		System.err.println("proxy.tls.out-going.socket="+tlsClient);
-		System.err.println("proxy.tls.in-coming.server-socket:false="+tlsServer);
+		System.err.println("proxy.log="+log);
+		System.err.println("proxy.tls.out-going.socket="+tlsOutGoing);
+		System.err.println("proxy.tls.in-coming.server-socket:false="+thsInComing);
 		System.err.println("proxy.export-message="+exportMessage);
 
-		AppContext appContext = AppContext.get()
-		.setTlsOutGoingSocket(tlsClient)
-		.setTlsInComingServerSocket(tlsServer);
 		try {
-			appContext.setLogProcess(logProcess);
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			AppContext.get()
+			.setTlsOutGoingSocket(tlsOutGoing)
+			.setTlsInComingServerSocket(thsInComing)
+			.setLog(log);
+		} catch (Exception e) {
 			e.printStackTrace();
+			// TODO: refine
 			System.exit(1);
 		}
 	}
