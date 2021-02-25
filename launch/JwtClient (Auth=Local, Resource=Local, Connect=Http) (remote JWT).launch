@@ -7,7 +7,8 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="oauth.client.authHost" value="http://localhost:8901"/>
+        <mapEntry key="client.use.remote.jwt" value="true"/>
+        <mapEntry key="oauth.client.authHost" value="http://localhost:9001"/>
         <mapEntry key="oauth.client.contextPath" value="/v1/availability/G00/20171012"/>
         <mapEntry key="oauth.client.resourceHost" value="http://localhost:8902"/>
     </mapAttribute>
@@ -19,5 +20,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="client"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="client"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Doauth2.keystorePath=..\keystore\ClientKeyStore.jks&#13;&#10;-Doauth2.keystoreAlias=oauth2test&#13;&#10;-Doauth2.keystorePassword=changeit"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Doauth2.keystorePath=ClientKeyStore.jks&#13;&#10;-Doauth2.keystoreAlias=oauth2test&#13;&#10;-Doauth2.keystorePassword=changeit"/>
 </launchConfiguration>

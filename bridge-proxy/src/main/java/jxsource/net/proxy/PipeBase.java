@@ -38,13 +38,13 @@ public class PipeBase extends Pipe {
 				} catch (Exception ioe) {
 					throw new IOException("Output stream error", ioe);
 				}
-				if (activeLog && log != null) {
+//				if (activeLog && log != null) {
 					if (name.contains(Constants.LocalToRemote)) {
 						log.logLocalToRemote(buf, 0, i);
 					} else {
 						log.logRemoteToLocal(buf, 0, i);
 					}
-				}
+//				}
 			}
 		}
 	}
