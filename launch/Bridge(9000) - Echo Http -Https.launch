@@ -8,13 +8,11 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="proxy.connect.type" value="http"/>
-        <mapEntry key="proxy.http.body-log" value="false"/>
         <mapEntry key="proxy.log" value="jxsource.net.proxy.http.HttpLog"/>
-        <mapEntry key="proxy.remote.host" value="localhost"/>
+        <mapEntry key="proxy.remote.domain" value="localhost"/>
         <mapEntry key="proxy.remote.port" value="8903"/>
         <mapEntry key="proxy.server.port" value="9000"/>
         <mapEntry key="proxy.tls.out-going.socket" value="true"/>
-        <mapEntry key="socketserver.port" value="9000"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
@@ -25,5 +23,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="bridge-proxy"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bridge-proxy"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.debug=handshake&#13;&#10;-Djavax.net.ssl.trustStore=../keystore/KeyStore.jks&#13;&#10;-Djavax.net.ssl.trustStorePassword=changeit"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.ssl.trustStore=../keystore/KeyStore.jks&#13;&#10;-Djavax.net.ssl.trustStorePassword=changeit"/>
 </launchConfiguration>

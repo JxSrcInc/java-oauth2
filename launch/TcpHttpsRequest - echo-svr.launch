@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-        <listEntry value="/client"/>
+        <listEntry value="/bridge-proxy/src/test/java/jxsource/net/proxy/TcpHttpsRequest.java"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-        <listEntry value="4"/>
+        <listEntry value="1"/>
     </listAttribute>
-    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jxsource.net.socket.TcpHttpRequest"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="client"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="client"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jxsource.net.proxy.TcpHttpsRequest"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="echo-svr"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="localhost&#13;&#10;8903"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bridge-proxy"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
     <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.ssl.trustStore=../keystore/KeyStore.jks&#13;&#10;-Djavax.net.ssl.trustStorePassword=changeit"/>
 </launchConfiguration>

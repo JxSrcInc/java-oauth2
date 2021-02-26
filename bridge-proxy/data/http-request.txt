@@ -1,4 +1,5 @@
 GET / HTTP/1.1
+Host: www.google.com
 Connection: keep-alive
 sec-ch-ua: "Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"
 sec-ch-ua-mobile: ?0
