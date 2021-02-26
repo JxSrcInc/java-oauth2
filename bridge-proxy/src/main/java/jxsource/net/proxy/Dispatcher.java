@@ -31,7 +31,7 @@ public class Dispatcher implements Runnable {
 //	@Autowired
 	private Worker worker;
 //	@Value("${proxy.bridge:false}")
-	private boolean bridge;
+	private String appType;
 //	@Value("${proxy.server.host}")
 	private String remoteHost;
 //	@Value("${proxy.server.port}")
@@ -44,9 +44,9 @@ public class Dispatcher implements Runnable {
 	private InputStream clientInput;
 	private AppContext appContext = AppContext.get();
 
-	public Dispatcher init(Socket client, boolean bridge, String serverHost, int serverPort) {
+	public Dispatcher init(Socket client, String appType, String serverHost, int serverPort) {
 		this.client = client;
-		this.bridge = bridge;
+		this.appType = appType;
 		this.remoteHost = serverHost;
 		this.remotePort = serverPort;
 		return this;
@@ -75,10 +75,15 @@ public class Dispatcher implements Runnable {
 	}
 
 	private void prepare() throws IOException {
-		if (bridge) {
+		switch(appType) {
+		case Constants.AppBridgeType:
 			clientInput = client.getInputStream();
-		} else {
+			break;
+		case Constants.AppProxyType:
 			prepareHostFromRequest();
+			break;
+			default:
+				throw new IOException("Invalid appType: "+appType);
 		}
 	}
 

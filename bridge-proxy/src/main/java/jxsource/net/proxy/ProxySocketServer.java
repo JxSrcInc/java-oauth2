@@ -42,7 +42,7 @@ public class ProxySocketServer {
 				Socket client = ss.accept();
 				log.info("accept: " + client.getInetAddress());
 				try {
-					Dispatcher dispatcher = new Dispatcher().init(client, bridge, serverHost, serverPort);
+					Dispatcher dispatcher = new Dispatcher().init(client, appContext.getAppType(), serverHost, serverPort);
 					ThreadUtil.createThread(dispatcher).start();
 				} catch(Exception se) {
 					log.error("fail to create Dispatcher thread",se);

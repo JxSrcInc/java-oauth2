@@ -14,6 +14,9 @@ public class AppContext {
 	private Log log;
 	private boolean tlsOutGoingSocket = false;
 	private boolean tlsInCommingServerSocket = false;
+	
+	private String appType;
+	
 	private boolean activeLog = false;
 	private boolean http = true;
 
@@ -22,6 +25,15 @@ public class AppContext {
 		
 	public boolean isHttp() {
 		return http;
+	}
+
+	public String getAppType() {
+		return appType;
+	}
+
+	public AppContext setAppType(String appType) {
+		this.appType = appType;
+		return this;
 	}
 
 	public void setHttp(boolean http) {

@@ -14,6 +14,10 @@ public class Configuration {
 	boolean tlsOutGoing;
 	@Value("${proxy.tls.in-coming.server-socket:false}")
 	boolean thsInComing;
+	
+	@Value("${proxy.app.type:bridge}")
+	private String appType;
+
 	@Value("${proxy.export-message:true}")
 	boolean exportMessage;
 	
@@ -22,12 +26,17 @@ public class Configuration {
 		System.err.println("proxy.log="+log);
 		System.err.println("proxy.tls.out-going.socket="+tlsOutGoing);
 		System.err.println("proxy.tls.in-coming.server-socket:false="+thsInComing);
+		
+		System.err.println("proxy.app.type="+appType);
+
 		System.err.println("proxy.export-message="+exportMessage);
 
 		try {
 			AppContext.get()
 			.setTlsOutGoingSocket(tlsOutGoing)
 			.setTlsInComingServerSocket(thsInComing)
+			.setAppType(appType)
+
 			.setLog(log);
 		} catch (Exception e) {
 			e.printStackTrace();
