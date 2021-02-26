@@ -18,31 +18,19 @@ import jxsource.net.proxy.util.ThreadUtil;
 public class ProxySocketServer {
 	private static Logger log = LoggerFactory.getLogger(ProxySocketServer.class);
 	
-//	@Value("${proxy.bridge:false}")
-//	private boolean bridge;
-	// remote host to connect
-	@Value("${proxy.remote.domain}")
-	private String serverHost;
-	// remote port to connect
-	@Value("${proxy.remote.port}")
-	private int serverPort;
-	// socket server listening port
-	@Value("${proxy.server.port:9999}")
-	private int port;
-	@Autowired
-	private Configuration configuration;
-	
 	public void start() {
 		AppContext appContext = AppContext.get();
 		try {
-			ServerSocket ss = appContext.getDefaultServerSocketFactory().createServerSocket(port);
+			ServerSocket ss = appContext.getDefaultServerSocketFactory()
+					.createServerSocket(appContext.getServerSocketPort());
 			
 			log.info("listening on " + ss.getInetAddress() + ":" + ss.getLocalPort() + " .....");
 			while (true) {
 				Socket client = ss.accept();
 				log.info("accept: " + client.getInetAddress());
 				try {
-					Dispatcher dispatcher = new Dispatcher().init(client, appContext.getAppType(), serverHost, serverPort);
+					Dispatcher dispatcher = new Dispatcher().init(client, appContext.getAppType(),
+							appContext.getRemoteDomain(), appContext.getRemotePort());
 					ThreadUtil.createThread(dispatcher).start();
 				} catch(Exception se) {
 					log.error("fail to create Dispatcher thread",se);
