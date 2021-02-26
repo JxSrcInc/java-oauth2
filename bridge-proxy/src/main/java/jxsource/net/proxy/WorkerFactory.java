@@ -18,7 +18,7 @@ public class WorkerFactory {
 		if (appContext.getLog() instanceof PrintLog) {
 			return new Worker().setPipeLocalToRemote(new PipeLocalToRemote())
 					.setPipeRemoteToLocal(new PipeRemoteToLocal())
-					.setLog(appContext.getLog(), appContext.isActiveLog());
+					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
 		} else {
 			HttpPipeContext requestContext = new HttpPipeContext()
 					.setRemoteHost(remoteHost).setRemotePort(remotePort)
@@ -31,7 +31,7 @@ public class WorkerFactory {
 						.setHttpPipeContext(requestContext))
 					.setPipeRemoteToLocal(new HttpPipeRemoteToLocal()
 							.setHttpPipeContext(responseContext))
-					.setLog(appContext.getLog(), appContext.isActiveLog());
+					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
 //					.setLogProcess(null);
 		}
 	}

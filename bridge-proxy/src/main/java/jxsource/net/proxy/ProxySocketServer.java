@@ -18,8 +18,8 @@ import jxsource.net.proxy.util.ThreadUtil;
 public class ProxySocketServer {
 	private static Logger log = LoggerFactory.getLogger(ProxySocketServer.class);
 	
-	@Value("${proxy.bridge:false}")
-	private boolean bridge;
+//	@Value("${proxy.bridge:false}")
+//	private boolean bridge;
 	// remote host to connect
 	@Value("${proxy.server.host}")
 	private String serverHost;

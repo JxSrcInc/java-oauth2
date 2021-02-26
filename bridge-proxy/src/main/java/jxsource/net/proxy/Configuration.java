@@ -18,8 +18,10 @@ public class Configuration {
 	@Value("${proxy.app.type:bridge}")
 	private String appType;
 
-	@Value("${proxy.export-message:true}")
-	boolean exportMessage;
+	@Value("${proxy.http.body-log:true}")
+	boolean httpBodyLog;
+	@Value("${proxy.connect.type:tcp}")
+	private String connType;
 	
 	@PostConstruct
 	public void init() {
@@ -29,13 +31,16 @@ public class Configuration {
 		
 		System.err.println("proxy.app.type="+appType);
 
-		System.err.println("proxy.export-message="+exportMessage);
+		System.err.println("proxy.http.body-log="+httpBodyLog);
+		System.err.println("proxy.connect.type="+connType);
 
 		try {
 			AppContext.get()
 			.setTlsOutGoingSocket(tlsOutGoing)
 			.setTlsInComingServerSocket(thsInComing)
+			.setHttpBodyLog(httpBodyLog)
 			.setAppType(appType)
+			.setConnType(connType)
 
 			.setLog(log);
 		} catch (Exception e) {

@@ -17,14 +17,19 @@ public class AppContext {
 	
 	private String appType;
 	
-	private boolean activeLog = false;
-	private boolean http = true;
+	private boolean httpBodyLog = false;
+	private String connType;
 
 	
 	private AppContext() {}
 		
-	public boolean isHttp() {
-		return http;
+	public String getConnType() {
+		return connType;
+	}
+
+	public AppContext setConnType(String connType) {
+		this.connType = connType;
+		return this;
 	}
 
 	public String getAppType() {
@@ -36,17 +41,12 @@ public class AppContext {
 		return this;
 	}
 
-	public void setHttp(boolean http) {
-		this.http = http;
+	public boolean isHttpBodyLog() {
+		return httpBodyLog;
 	}
 
-
-	public boolean isActiveLog() {
-		return activeLog;
-	}
-
-	public AppContext setActiveLog(boolean activeLog) {
-		this.activeLog = activeLog;
+	public AppContext setHttpBodyLog(boolean httpBodyLog) {
+		this.httpBodyLog = httpBodyLog;
 		return this;
 	}
 
