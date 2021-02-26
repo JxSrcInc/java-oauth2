@@ -103,8 +103,9 @@ public class Worker implements Runnable, ActionListener {
 		// both PipeClientToServer and PipeServerToClient will call
 		// but only the first one needs to process - close other pipe
 		if (active.compareAndSet(true, false)) {
-			String pipeName = e.getSource().getClass().getSimpleName();
+			String pipeName = e.getActionCommand();//e.getSource().getClass().getSimpleName();
 			String msg = "Reciev event: " + e.getActionCommand() + " " + e.getSource().toString();
+			System.err.println(pipeName+","+PipeLocalToRemoteName);
 			logger.debug(debugInfo(msg));
 			// handle remote socket timeout
 				// stop thread
