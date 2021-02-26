@@ -12,7 +12,7 @@ public class Configuration {
 	String log;
 	@Value("${proxy.tls.out-going.socket:false}")
 	boolean tlsOutGoing;
-	@Value("${proxy.tls.in-coming.server-socket:false}")
+	@Value("${proxy.tls.in-coming.socket:false}")
 	boolean thsInComing;
 	
 	@Value("${proxy.app.type:bridge}")
@@ -38,7 +38,7 @@ public class Configuration {
 	public void init() {
 		System.err.println("proxy.log="+log);
 		System.err.println("proxy.tls.out-going.socket="+tlsOutGoing);
-		System.err.println("proxy.tls.in-coming.server-socket:false="+thsInComing);
+		System.err.println("proxy.tls.in-coming.socket="+thsInComing);
 		
 		System.err.println("proxy.app.type="+appType);
 

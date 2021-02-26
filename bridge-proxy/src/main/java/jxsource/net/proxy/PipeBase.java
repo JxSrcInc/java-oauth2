@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import jxsource.net.proxy.util.ThreadUtil;
 
 /*
- * Pipe to pass data between client and server
+ * Pipe to pass data between local socket and remote socket
  */
 public class PipeBase extends Pipe {
 	Logger logger = LoggerFactory.getLogger(PipeBase.class);

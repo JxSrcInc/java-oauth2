@@ -61,15 +61,15 @@ public class Worker implements Runnable, ActionListener {
 		return this;
 	}
 
-	public Worker init(Socket client, InputStream clientInput, Socket server)
+	public Worker init(Socket localSocket, InputStream localSocketInput, Socket remoteSocket)
 			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		this.localSocket = client;
-		this.remoteSocket = server;
+		this.localSocket = localSocket;
+		this.remoteSocket = remoteSocket;
 		logger.debug(debugInfo("starat"));
-		if (clientInput != null) {
-			this.localInput = clientInput;
+		if (localSocketInput != null) {
+			this.localInput = localSocketInput;
 		} else {
-			this.localInput = client.getInputStream();
+			this.localInput = localSocket.getInputStream();
 		}
 		localOutput = this.localSocket.getOutputStream();
 		remoteInput = this.remoteSocket.getInputStream();
@@ -78,7 +78,7 @@ public class Worker implements Runnable, ActionListener {
 		PipedOutputStream logOutClientToServer = null;
 		PipedOutputStream logOutServerToClient = null;
 		// create working pipe
-		pipeLocalToRemote.init(PipeLocalToRemoteName, clientInput, remoteOutput, log, activeLog);
+		pipeLocalToRemote.init(PipeLocalToRemoteName, localSocketInput, remoteOutput, log, activeLog);
 		pipeLocalToRemote.setListener(this);
 		pipeRemoteToLocal.init(PipeRemoteToLocalName, remoteInput, localOutput, log, activeLog);
 		pipeRemoteToLocal.setListener(this);

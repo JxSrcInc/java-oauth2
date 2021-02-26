@@ -28,45 +28,41 @@ import javax.net.SocketFactory;
 
 public class Dispatcher implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(Dispatcher.class);
-//	@Autowired
 	private Worker worker;
-//	@Value("${proxy.bridge:false}")
 	private String appType;
-//	@Value("${proxy.server.host}")
-	private String remoteHost;
-//	@Value("${proxy.server.port}")
+	private String remoteDomain;
 	private int remotePort;
 
 	private int socketTimeout = 3;
 	private volatile int count = 0;
 
-	private Socket client;
-	private InputStream clientInput;
+	private Socket localSocket;
+	private InputStream localSocketInput;
 	private AppContext appContext = AppContext.get();
 
-	public Dispatcher init(Socket client, String appType, String serverHost, int serverPort) {
-		this.client = client;
+	public Dispatcher init(Socket localSocket, String appType, String remoteDomain, int remotePort) {
+		this.localSocket = localSocket;
 		this.appType = appType;
-		this.remoteHost = serverHost;
-		this.remotePort = serverPort;
+		this.remoteDomain = remoteDomain;
+		this.remotePort = remotePort;
 		return this;
 	}
 
 	private Socket getRemoteSocket() throws UnknownHostException {
-		InetAddress addr = InetAddress.getByName(remoteHost);
+		InetAddress addr = InetAddress.getByName(remoteDomain);
 		SocketAddress sockaddr = new InetSocketAddress(addr, remotePort);
 		while (count < 3) {
 			int timeout = (socketTimeout * (count++)) * 1000;
 			try {
 				log.debug(
-						logMsg(String.format("connect to %s:%d with timeout %d sec", remoteHost, remotePort, timeout)));
+						logMsg(String.format("connect to %s:%d with timeout %d sec", remoteDomain, remotePort, timeout)));
 				Socket s = appContext.getDefaultSocketFactory().createSocket();
 				s.setSoTimeout(timeout);
 				s.connect(sockaddr);
 				return s;
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
-				String msg = String.format("Re-connect(%d) to %s(%d) with timeout %d", count, remoteHost, remotePort, timeout);
+				String msg = String.format("Re-connect(%d) to %s(%d) with timeout %d", count, remoteDomain, remotePort, timeout);
 				System.err.println(logMsg(msg));
 			}
 		}
@@ -77,7 +73,7 @@ public class Dispatcher implements Runnable {
 	private void prepare() throws IOException {
 		switch(appType) {
 		case Constants.AppBridgeType:
-			clientInput = client.getInputStream();
+			localSocketInput = localSocket.getInputStream();
 			break;
 		case Constants.AppProxyType:
 			prepareHostFromRequest();
@@ -90,7 +86,7 @@ public class Dispatcher implements Runnable {
 	private void prepareHostFromRequest() throws IOException {
 		// size must be large enough to contain all headers
 		int size = 1024 * 8;
-		PushbackInputStream clientInput = new PushbackInputStream(client.getInputStream(), size);
+		PushbackInputStream clientInput = new PushbackInputStream(localSocket.getInputStream(), size);
 		byte[] buf = new byte[size];
 		byte b13 = 13;
 		byte b10 = 10;
@@ -136,9 +132,9 @@ public class Dispatcher implements Runnable {
 			}
 		}
 		if (host == null) {
-			throw new IOException("Cannot find host and port for server.");
+			throw new IOException("Cannot find host and port for remote socket.");
 		}
-		remoteHost = host;
+		remoteDomain = host;
 		remotePort = port;
 	}
 
@@ -151,7 +147,7 @@ public class Dispatcher implements Runnable {
 		} catch (Exception e) {
 			log.error(logMsg("Fail to start Dispatcher thread"), e);
 			try {
-				client.close();
+				localSocket.close();
 			} catch (IOException e1) {
 			}
 		}
@@ -162,15 +158,15 @@ public class Dispatcher implements Runnable {
 		if (remoteSocket == null) {
 			throw new IOException();
 		}
-		worker = WorkerFactory.build().create(remoteHost, remotePort);
-		worker.init(client, clientInput, remoteSocket);
+		worker = WorkerFactory.build().create(remoteDomain, remotePort);
+		worker.init(localSocket, localSocketInput, remoteSocket);
 		ThreadUtil.createThread(worker).start();
 		log.debug(logMsg("end Dispatcher with starting Worker"));
 	}
 
 	private String logMsg(String info) {
 		String msg = String.format("\n\t*** %s: Dispatcher(%d)-client(%s:%d): %s", ThreadUtil.threadInfo(),
-				this.hashCode(), client.getInetAddress().getHostName(), client.getPort(), info);
+				this.hashCode(), localSocket.getInetAddress().getHostName(), localSocket.getPort(), info);
 		return msg;
 
 	}

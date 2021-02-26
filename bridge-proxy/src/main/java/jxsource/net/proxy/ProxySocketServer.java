@@ -26,15 +26,15 @@ public class ProxySocketServer {
 			
 			log.info("listening on " + ss.getInetAddress() + ":" + ss.getLocalPort() + " .....");
 			while (true) {
-				Socket client = ss.accept();
-				log.info("accept: " + client.getInetAddress());
+				Socket localSocket = ss.accept();
+				log.info("accept: " + localSocket.getInetAddress());
 				try {
-					Dispatcher dispatcher = new Dispatcher().init(client, appContext.getAppType(),
+					Dispatcher dispatcher = new Dispatcher().init(localSocket, appContext.getAppType(),
 							appContext.getRemoteDomain(), appContext.getRemotePort());
 					ThreadUtil.createThread(dispatcher).start();
 				} catch(Exception se) {
 					log.error("fail to create Dispatcher thread",se);
-					client.close();
+					localSocket.close();
 				}
 			}
 		} catch (IOException e) {
