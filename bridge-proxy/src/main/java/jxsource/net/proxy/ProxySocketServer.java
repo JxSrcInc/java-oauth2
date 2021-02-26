@@ -21,13 +21,13 @@ public class ProxySocketServer {
 //	@Value("${proxy.bridge:false}")
 //	private boolean bridge;
 	// remote host to connect
-	@Value("${proxy.server.host}")
+	@Value("${proxy.remote.domain}")
 	private String serverHost;
 	// remote port to connect
-	@Value("${proxy.server.port}")
+	@Value("${proxy.remote.port}")
 	private int serverPort;
 	// socket server listening port
-	@Value("${socketserver.port:9999}")
+	@Value("${proxy.server.port:9999}")
 	private int port;
 	@Autowired
 	private Configuration configuration;

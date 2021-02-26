@@ -16,12 +16,43 @@ public class AppContext {
 	private boolean tlsInCommingServerSocket = false;
 	
 	private String appType;
+	private String connType;
 	
 	private boolean httpBodyLog = false;
-	private String connType;
+	private String remoteDomain;
+	private int remotePort;
+	private int serverSocketPort;
 
 	
 	private AppContext() {}
+	
+	public int getServerSocketPort() {
+		return serverSocketPort;
+	}
+
+	public AppContext setServerSocketPort(int serverSocketPort) {
+		this.serverSocketPort = serverSocketPort;
+		return this;
+	}
+
+	public String getRemoteDomain() {
+		return remoteDomain;
+	}
+
+	public AppContext setRemoteDomain(String remoteDomain) {
+		this.remoteDomain = remoteDomain;
+		return  this;
+	}
+
+	public int getRemotePort() {
+		return remotePort;
+	}
+
+	public AppContext setRemotePort(int remotePort) {
+		this.remotePort = remotePort;
+		return this;
+	}
+
 		
 	public String getConnType() {
 		return connType;

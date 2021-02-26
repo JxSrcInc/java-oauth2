@@ -7,10 +7,10 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="proxy.server.host" value="localhost"/>
-        <mapEntry key="proxy.server.port" value="8903"/>
+        <mapEntry key="proxy.remote.domain" value="localhost"/>
+        <mapEntry key="proxy.remote.port" value="8903"/>
+        <mapEntry key="proxy.server.port" value="9000"/>
         <mapEntry key="proxy.tls.out-going.socket" value="true"/>
-        <mapEntry key="socketserver.port" value="9000"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
