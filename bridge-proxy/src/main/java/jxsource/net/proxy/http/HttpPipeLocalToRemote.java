@@ -12,24 +12,25 @@ import jxsource.net.proxy.PipeBase;
 import jxsource.net.proxy.PipeLocalToRemote;
 import jxsource.net.proxy.PipeRemoteToLocal;
 
+@Deprecated
 public class HttpPipeLocalToRemote extends PipeLocalToRemote {
 	
 	
 	HttpPipeProcess httpPipeProcess = HttpPipeProcess.build();
-	HttpPipeContext context;
+	private HttpEditor editor;
 	public void init(String name, InputStream in, OutputStream out, 
 			Log log, boolean activeLog) {
 		super.init(name, in, out, log, activeLog);
 	}
 	
-	public HttpPipeLocalToRemote setHttpPipeContext(HttpPipeContext context) {
-		this.context = context;
+	public HttpPipeLocalToRemote setHttpPipeContext(HttpEditor editor) {
+		this.editor = editor;
 		return this;
 	}
 
 	@Override
 	protected void proc() throws IOException {
-		httpPipeProcess.init(name, in, out, log, context).proc();
+		httpPipeProcess.init(name, in, out, log, editor).proc();
 	}
 
 

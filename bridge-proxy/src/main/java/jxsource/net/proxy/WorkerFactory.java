@@ -5,6 +5,7 @@ import jxsource.net.proxy.http.HttpPipeContext;
 import jxsource.net.proxy.http.HttpPipeLocalToRemote;
 import jxsource.net.proxy.http.HttpPipeRemoteToLocal;
 import jxsource.net.proxy.http.HttpResponselEditor;
+import jxsource.net.proxy.http.HttpWorker;
 
 public class WorkerFactory {
 
@@ -14,25 +15,41 @@ public class WorkerFactory {
 		return new WorkerFactory();
 	}
 
+//	public Worker create(String remoteHost, int remotePort) {
+//		if (appContext.getLog() instanceof PrintLog) {
+//			return new PipeWorker().setPipeLocalToRemote(new PipeLocalToRemote())
+//					.setPipeRemoteToLocal(new PipeRemoteToLocal())
+//					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
+//		} else {
+//			HttpPipeContext requestContext = new HttpPipeContext()
+//					.setRemoteHost(remoteHost).setRemotePort(remotePort)
+//					.setHttpHeaderEditor(new HttpRequestEditor());
+//			HttpPipeContext responseContext = new HttpPipeContext()
+//					.setRemoteHost(remoteHost).setRemotePort(remotePort)
+//					.setHttpHeaderEditor(new HttpResponselEditor());
+//			
+//			return new PipeWorker().setPipeLocalToRemote(new HttpPipeLocalToRemote()
+//						.setHttpPipeContext(requestContext))
+//					.setPipeRemoteToLocal(new HttpPipeRemoteToLocal()
+//							.setHttpPipeContext(responseContext))
+//					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
+////					.setLogProcess(null);
+//		}
+//	}
+	
 	public Worker create(String remoteHost, int remotePort) {
-		if (appContext.getLog() instanceof PrintLog) {
-			return new Worker().setPipeLocalToRemote(new PipeLocalToRemote())
+		String connType = appContext.getConnType();
+		switch(connType) {
+		case Constants.ConnTcpType:
+			return new PipeWorker().setPipeLocalToRemote(new PipeLocalToRemote())
 					.setPipeRemoteToLocal(new PipeRemoteToLocal())
 					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
-		} else {
-			HttpPipeContext requestContext = new HttpPipeContext()
-					.setRemoteHost(remoteHost).setRemotePort(remotePort)
-					.setHttpHeaderEditor(new HttpRequestEditor());
-			HttpPipeContext responseContext = new HttpPipeContext()
-					.setRemoteHost(remoteHost).setRemotePort(remotePort)
-					.setHttpHeaderEditor(new HttpResponselEditor());
-			
-			return new Worker().setPipeLocalToRemote(new HttpPipeLocalToRemote()
-						.setHttpPipeContext(requestContext))
-					.setPipeRemoteToLocal(new HttpPipeRemoteToLocal()
-							.setHttpPipeContext(responseContext))
-					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
-//					.setLogProcess(null);
+		case Constants.CoonHttpType:	
+			return new HttpWorker()
+					.setLog(appContext.getLog(), appContext.getLog());
+			default:
+				throw new RuntimeException("invalide connType: "+connType);
 		}
 	}
+
 }

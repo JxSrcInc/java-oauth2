@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jxsource.net.proxy.ProxySocketServer;
-import jxsource.net.proxy.Worker;
+import jxsource.net.proxy.PipeWorker;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "jxsource.net.proxy" })

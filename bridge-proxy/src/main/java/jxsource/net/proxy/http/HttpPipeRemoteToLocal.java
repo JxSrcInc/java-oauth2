@@ -11,21 +11,22 @@ import jxsource.net.proxy.Log;
 import jxsource.net.proxy.PipeBase;
 import jxsource.net.proxy.PipeRemoteToLocal;
 
+@Deprecated
 public class HttpPipeRemoteToLocal extends PipeRemoteToLocal {
 	private HttpPipeProcess httpPipeProcess = HttpPipeProcess.build();
-	private HttpPipeContext context;
+	private HttpEditor editor;
 
 	public void init(String name, InputStream in, OutputStream out, Log log, boolean activeLog) {
 		super.init(name, in, out, log, activeLog);
 	}
-	public HttpPipeRemoteToLocal setHttpPipeContext(HttpPipeContext context) {
-		this.context = context;
+	public HttpPipeRemoteToLocal setHttpPipeContext(HttpEditor editor) {
+		this.editor = editor;
 		return this;
 	}
 
 	@Override
 	protected void proc() throws IOException {
-		httpPipeProcess.init(name, in, out, log, context).proc();
+		httpPipeProcess.init(name, in, out, log, editor).proc();
 	}
 
 }

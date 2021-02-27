@@ -1,4 +1,4 @@
-package jxsource.net.proxy.http;
+package jxsource.net.proxy;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

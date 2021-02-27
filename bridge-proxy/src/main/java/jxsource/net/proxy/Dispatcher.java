@@ -153,7 +153,7 @@ public class Dispatcher implements Runnable {
 		}
 	}
 
-	private void dispatch() throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
+	private void dispatch() throws Exception {
 		Socket remoteSocket = getRemoteSocket();
 		if (remoteSocket == null) {
 			throw new IOException();
