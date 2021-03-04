@@ -82,6 +82,7 @@ public class HttpPipeProcess {
 							headerBytes = context.getEditor().edit(handler);
 						}
 						output(headerBytes);
+						log.logHeader(headerBytes);
 						String headerValue = null;
 						if ((headerValue = handler.getHeaderValue("Transfer-Encoding")) != null) {
 							step = ChunkContent;
@@ -157,6 +158,9 @@ public class HttpPipeProcess {
 					// output one chunk with its header and data
 					byte[] chunk = buf.remove(chunkBufSize);
 					output(chunk);
+					byte[] data = new byte[chunkSize];
+					System.arraycopy(chunk, chunkHeader.length+2, data, 0, chunkSize);
+					log.logContent(data);
 					// do next read because the whole chunk process does not finish
 					isChunkHeader = true;
 				} while (isChunkHeader);
@@ -187,6 +191,7 @@ public class HttpPipeProcess {
 			}
 			try {
 				output(content);
+				log.logContent(content);
 			} catch (Exception e) {
 				throw new IOException(name + " output Http body error", e);
 			}
@@ -200,11 +205,7 @@ public class HttpPipeProcess {
 
 		private int output(byte[] data) throws IOException {
 			out.write(data);
-//			System.out.println("output " + data.length);
 			out.flush();
-			if (log != null) {
-				log.print(name, data);
-			}
 			return data.length;
 		}
 

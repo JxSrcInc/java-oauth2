@@ -14,6 +14,7 @@ import java.net.SocketAddress;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import jxsource.net.proxy.http.HttpLog;
 import jxsource.net.proxy.http.HttpPipeProcess;
 
 public class TcpTester {
@@ -45,7 +46,7 @@ public class TcpTester {
 			
 			HttpPipeProcess p = HttpPipeProcess.build();
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			p.init("test", in, bout, null, null).proc();
+			p.init("test", in, bout, new HttpLog(), null).proc();
 			System.out.println("****** recieved data:");
 			System.out.println(bout.toString());
 
