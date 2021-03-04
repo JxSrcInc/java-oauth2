@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import jxsource.net.proxy.Constants;
 import jxsource.net.proxy.tcp.Log;
 import jxsource.net.proxy.util.ByteBuffer;
 import jxsource.net.proxy.util.HttpUtil;
@@ -17,7 +18,7 @@ public class HttpPipeProcess {
 		private OutputStream out;
 		private HttpLog log;
 		private HttpUtil httpUtil = HttpUtil.build();
-		private HttpHeader handler = HttpHeader.build();
+		private HttpHeader httpHeader = HttpHeader.build();
 		private String name;
 		private boolean httpBodyLog;
 
@@ -77,17 +78,18 @@ public class HttpPipeProcess {
 						}
 						// remove headerLen bytes from buf
 						byte[] headerBytes = buf.remove(headerLen);
-						handler.init(headerBytes);
-						if(context != null) {
-							headerBytes = context.getEditor().edit(handler);
-						}
+						httpHeader.init(headerBytes);
+						// cache Content-Type for FileLog to select file extension when saving content to file
+						context.addAttribute(Constants.ContentType,httpHeader.getFirstHeader("Content-Type"));
+						// edit headers
+						headerBytes = context.getEditor().edit(httpHeader);
 						output(headerBytes);
 						log.logHeader(headerBytes);
 						String headerValue = null;
-						if ((headerValue = handler.getHeaderValue("Transfer-Encoding")) != null) {
+						if ((headerValue = httpHeader.getFirstHeader("Transfer-Encoding")) != null) {
 							step = ChunkContent;
 							isChunkHeader = true;
-						} else if ((headerValue = handler.getHeaderValue("Content-Length")) != null) {
+						} else if ((headerValue = httpHeader.getFirstHeader("Content-Length")) != null) {
 							step = LengthContent;
 							contentLength = Long.parseLong(headerValue);
 							outputLength = 0;

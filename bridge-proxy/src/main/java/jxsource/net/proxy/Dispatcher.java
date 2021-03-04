@@ -162,7 +162,9 @@ public class Dispatcher implements Runnable {
 		}
 		worker = WorkerFactory.build().create(remoteDomain, remotePort);
 		if(worker instanceof HttpWorker) {
-			((HttpWorker)worker).initHttp(remoteDomain, remotePort);
+			((HttpWorker)worker).initHttp(remoteDomain, remotePort,
+					appContext.isDownloadData(), appContext.getDownloadDir(),
+					appContext.getDownloadMime());
 		}
 		worker.init(localSocket, localSocketInput, remoteSocket);
 		ThreadUtil.createThread(worker).start();

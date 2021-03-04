@@ -33,6 +33,14 @@ public class Configuration {
 	@Value("${proxy.server.port}")
 	private int serverPort;
 
+	@Value("${proxy.download.dir:download}")
+	private String downloadDir;
+	@Value("${proxy.download.data:false}")
+	private boolean downloadData;
+	// comma separated string
+	@Value("${proxy.download.mime:}")
+	private String downloadMime;
+
 	
 	@PostConstruct
 	public void init() {
@@ -48,6 +56,9 @@ public class Configuration {
 		System.err.println("proxy.remote.domain="+remoteDomain);
 		System.err.println("proxy.remote.port="+remotePort);
 		System.err.println("proxy.server.port="+serverPort);
+		System.err.println("proxy.download.data="+downloadData);
+		System.err.println("proxy.download.dir="+downloadDir);
+		System.err.println("proxy.download.mime="+downloadMime);
 
 		try {
 			AppContext.get()
@@ -58,7 +69,10 @@ public class Configuration {
 			.setConnType(connType)
 			.setRemoteDomain(remoteDomain)
 			.setRemotePort(remotePort)
-			.setServerSocketPort(serverPort);
+			.setServerSocketPort(serverPort)
+			.setDownloadData(downloadData)
+			.setDownloadDir(downloadDir)
+			.setDownloadMime(downloadMime);
 
 //			.setLog(log);
 		} catch (Exception e) {

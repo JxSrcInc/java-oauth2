@@ -11,4 +11,7 @@ public class Constants {
 	public static final String CoonHttpType = "http";
 	// TCP connection
 	public static final String ConnTcpType = "tcp";
+	
+	public static final String ContentType = "ContentType";
+
 }

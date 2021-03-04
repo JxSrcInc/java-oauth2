@@ -11,6 +11,39 @@ public class HttpContext {
 	private ResponseLog responseLog;
 	private Map<String, Object> attributes = new HashMap<>();
 
+	private String downloadDir;
+	private boolean downloadData;
+	// comma separated string
+	private String downloadMime;
+
+	public String getDownloadMime() {
+		return downloadMime;
+	}
+
+	// comma separated string
+	public HttpContext setDownloadMime(String downloadMime) {
+		this.downloadMime = downloadMime;
+		return this;
+	}
+
+	public String getDownloadDir() {
+		return downloadDir;
+	}
+
+	public HttpContext setDownloadDir(String downloadDir) {
+		this.downloadDir = downloadDir;
+		return this;
+	}
+
+	public boolean isDownloadData() {
+		return downloadData;
+	}
+
+	public HttpContext setDownloadData(boolean downloadData) {
+		this.downloadData = downloadData;
+		return this;
+	}
+
 	public RequestLog getRequestLog() {
 		return requestLog;
 	}

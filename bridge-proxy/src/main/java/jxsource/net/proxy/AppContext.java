@@ -25,9 +25,41 @@ public class AppContext {
 	private int remotePort;
 	private int serverSocketPort;
 
+	private String downloadDir;
+	private boolean downloadData;
+	// comma separated string
+	private String downloadMime;
 	
 	private AppContext() {}
 	
+	public String getDownloadMime() {
+		return downloadMime;
+	}
+
+	// comma separated string
+	public AppContext setDownloadMime(String downloadMime) {
+		this.downloadMime = downloadMime;
+		return this;
+	}
+
+	public String getDownloadDir() {
+		return downloadDir;
+	}
+
+	public AppContext setDownloadDir(String downloadDir) {
+		this.downloadDir = downloadDir;
+		return this;
+	}
+
+	public boolean isDownloadData() {
+		return downloadData;
+	}
+
+	public AppContext setDownloadData(boolean downloadData) {
+		this.downloadData = downloadData;
+		return this;
+	}
+
 	public int getServerSocketPort() {
 		return serverSocketPort;
 	}

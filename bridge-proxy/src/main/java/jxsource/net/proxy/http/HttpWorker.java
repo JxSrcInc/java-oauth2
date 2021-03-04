@@ -31,9 +31,16 @@ public class HttpWorker implements Worker{
 	private HttpContext requestContext;
 	private HttpContext responseContext;
 
-	public HttpWorker initHttp(String remoteHost, int remotePort) {
-		this.requestContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor());
-		this.responseContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor());
+	public HttpWorker initHttp(String remoteHost, int remotePort, 
+			boolean downloadData, String downloadDir, String downloadMime) {
+		this.requestContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor())
+				.setDownloadData(downloadData)
+				.setDownloadDir(downloadDir)
+				.setDownloadMime(downloadMime);
+		this.responseContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor())
+				.setDownloadData(downloadData)
+				.setDownloadDir(downloadDir)
+				.setDownloadMime(downloadMime);
 		return this;
 	}
 
