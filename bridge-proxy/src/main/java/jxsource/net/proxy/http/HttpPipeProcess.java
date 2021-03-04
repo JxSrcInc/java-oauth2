@@ -106,6 +106,7 @@ public class HttpPipeProcess {
 						} else {
 							transProcessing = false;
 						}
+						break;
 					case ChunkContent:
 						if (outputChunk(buf)) {
 							transProcessing = false;
