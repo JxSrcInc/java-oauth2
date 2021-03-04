@@ -1,17 +1,17 @@
 package jxsource.net.proxy.http;
 
 public class HttpContext {
-	private String remoteDomain;
+	private String remoteHost;
 	private int remotePort;
 	private HttpEditor editor;
 
-	public HttpContext setRemoteDomain(String domain) {
-		remoteDomain = domain;
+	public HttpContext setRemoteHost(String host) {
+		remoteHost = host;
 		return this;
 	}
 
-	public String getRemoteDomain() {
-		return remoteDomain;
+	public String getRemoteHost() {
+		return remoteHost;
 	}
 
 	public HttpContext setRemotePort(int port) {
@@ -23,8 +23,8 @@ public class HttpContext {
 		return remotePort;
 	}	
 
-	public static HttpContext build(String domain, int port) {
-		return new HttpContext().setRemoteDomain(domain).setRemotePort(port);
+	public static HttpContext build(String host, int port) {
+		return new HttpContext().setRemoteHost(host).setRemotePort(port);
 	}
 
 	public HttpEditor getEditor() {

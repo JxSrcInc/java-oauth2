@@ -37,9 +37,9 @@ public class HttpWorker implements Worker{
 		this.log = log;
 		return this;
 	}
-	public HttpWorker initHttp(String remoteDomain, int remotePort) {
-		this.requestContext = HttpContext.build(remoteDomain, remotePort).setEditor(new HttpRequestEditor());
-		this.responseContext = HttpContext.build(remoteDomain, remotePort).setEditor(new HttpResponseEditor());
+	public HttpWorker initHttp(String remoteHost, int remotePort) {
+		this.requestContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor());
+		this.responseContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor());
 		return this;
 	}
 
