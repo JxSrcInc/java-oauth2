@@ -12,6 +12,9 @@ public class Constants {
 	// TCP connection
 	public static final String ConnTcpType = "tcp";
 	
-	public static final String ContentType = "ContentType";
+	public static final String ContentType = "Content-Type";
+	public static final String ContentEncoding = "Content-Encoding";
+	public static final String ContentLength = "Content-Length";
+	public static final String TransferEncoding = "Transfer-Encoding";
 
 }

@@ -16,11 +16,10 @@ import jxsource.net.proxy.util.ThreadUtil;
 public class HttpPipeProcess {
 		private InputStream in;
 		private OutputStream out;
-		private HttpLog log;
+		private HttpLog httpLog;
 		private HttpUtil httpUtil = HttpUtil.build();
 		private HttpHeader httpHeader = HttpHeader.build();
 		private String name;
-		private boolean httpBodyLog;
 
 		static final byte b13 = 13;
 		static final byte b10 = 10;
@@ -48,10 +47,9 @@ public class HttpPipeProcess {
 			this.in = in;
 			this.out = out;
 			// logOut may be null if no output requires
-			this.log = appLog;
+			this.httpLog = appLog;
 			this.name = name;
 			this.context = context;
-			this.httpBodyLog = false;// httpBodyLog;
 			return this;
 		}
 
@@ -80,16 +78,25 @@ public class HttpPipeProcess {
 						byte[] headerBytes = buf.remove(headerLen);
 						httpHeader.init(headerBytes);
 						// cache Content-Type for FileLog to select file extension when saving content to file
-						context.addAttribute(Constants.ContentType,httpHeader.getFirstHeader("Content-Type"));
+						if("br".equals(httpHeader.getFirstHeader(Constants.ContentEncoding))) {
+							System.err.println(httpHeader.getFirstHeader(Constants.ContentType));
+							System.err.println(httpHeader.getFirstHeader(Constants.ContentEncoding));
+							System.err.println(httpHeader.getFirstHeader(Constants.TransferEncoding));
+							System.err.println(httpHeader.getFirstHeader(Constants.ContentLength));
+						}
+						context.addAttribute(Constants.ContentType, httpHeader.getFirstHeader(Constants.ContentType));
+						context.addAttribute(Constants.ContentEncoding, httpHeader.getFirstHeader(Constants.ContentEncoding));
+						// TODO: change to use startSave parameter instead of using context attribute
+						httpLog.startSave();
 						// edit headers
 						headerBytes = context.getEditor().edit(httpHeader);
 						output(headerBytes);
-						log.logHeader(headerBytes);
+						httpLog.logHeader(headerBytes);
 						String headerValue = null;
-						if ((headerValue = httpHeader.getFirstHeader("Transfer-Encoding")) != null) {
+						if ((headerValue = httpHeader.getFirstHeader(Constants.TransferEncoding)) != null) {
 							step = ChunkContent;
 							isChunkHeader = true;
-						} else if ((headerValue = httpHeader.getFirstHeader("Content-Length")) != null) {
+						} else if ((headerValue = httpHeader.getFirstHeader(Constants.ContentLength)) != null) {
 							step = LengthContent;
 							contentLength = Long.parseLong(headerValue);
 							outputLength = 0;
@@ -129,6 +136,7 @@ public class HttpPipeProcess {
 					throw new IOException("Input stream return -1");
 				}
 			}
+			httpLog.close();
 		}
 
 		// return true if chunk complete
@@ -162,7 +170,7 @@ public class HttpPipeProcess {
 					output(chunk);
 					byte[] data = new byte[chunkSize];
 					System.arraycopy(chunk, chunkHeader.length+2, data, 0, chunkSize);
-					log.logContent(data);
+					httpLog.logContent(data);
 					// do next read because the whole chunk process does not finish
 					isChunkHeader = true;
 				} while (isChunkHeader);
@@ -193,7 +201,7 @@ public class HttpPipeProcess {
 			}
 			try {
 				output(content);
-				log.logContent(content);
+				httpLog.logContent(content);
 			} catch (Exception e) {
 				throw new IOException(name + " output Http body error", e);
 			}

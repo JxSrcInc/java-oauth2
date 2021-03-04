@@ -10,11 +10,14 @@ public abstract class HttpLog {
 	protected HttpContext context;
 	private FileLog fileLog;
 
-	protected void startSave() {
-		fileLog = FileLog.build("need implement");
+	public void startSave() {
+		if(export) {
+			fileLog = FileLog.build(context);
+		}
 	}
 	public HttpLog setHttpContext(HttpContext context) {
 		this.context = context;
+		export = context.isDownloadData();
 		return this;
 	}
 
@@ -41,7 +44,7 @@ public abstract class HttpLog {
 		if(export && fileLog != null) fileLog.save(data);
 	};
 	
-	protected void closeFileLog() {
+	protected void close() {
 		if(fileLog != null) {
 			fileLog.close();
 			fileLog = null;

@@ -25,6 +25,12 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!-- https://mvnrepository.com/artifact/org.brotli/dec -->
+<dependency>
+    <groupId>org.brotli</groupId>
+    <artifactId>dec</artifactId>
+    <version>0.1.1</version>
+</dependency>
 
   </dependencies>
 </project>
