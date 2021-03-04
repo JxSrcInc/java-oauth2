@@ -1,11 +1,15 @@
 package jxsource.net.proxy.http;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class HttpContext {
 	private String remoteHost;
 	private int remotePort;
 	private HttpEditor editor;
 	private RequestLog requestLog;
 	private ResponseLog responseLog;
+	private Map<String, Object> attributes = new HashMap<>();
 
 	public RequestLog getRequestLog() {
 		return requestLog;
@@ -55,5 +59,22 @@ public class HttpContext {
 		return this;
 	}
 	
+	public HttpContext addAttribute(String name, Object value) {
+		attributes.put(name, value);
+		return this;
+	}
+
+	public HttpContext removeAttribute(String name) {
+		attributes.remove(name);
+		return this;
+	}
+	public Object getAttribute(String name) {
+		return attributes.get(name);
+	}
+
+	public String getValue(String name) {
+		Object val = attributes.get(name);
+		return val==null?null:val.toString();
+	}
 	
 }

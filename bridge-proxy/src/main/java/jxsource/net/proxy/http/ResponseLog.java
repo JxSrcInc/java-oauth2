@@ -3,11 +3,14 @@ package jxsource.net.proxy.http;
 public class ResponseLog extends HttpLog {
 
 	private RequestLog requestLog;
+
 	@Override
 	public void logHeader(byte[] data) {
-		ps.println(new String(requestLog.getHeaderBytes()));
-		ps.println(new String(data));
-		ps.println("---------------------------------");
+		if (header) {
+			ps.println(new String(requestLog.getHeaderBytes()));
+			ps.println(new String(data));
+			ps.println("---------------------------------");
+		}
 	}
 
 	public ResponseLog setRequestLog(RequestLog requestLog) {
