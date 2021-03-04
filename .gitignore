@@ -3,7 +3,7 @@
 **/.classpath
 **/.settings
 **/.project
-
+*.log
 .metadata/
 settings.xml
 repository/

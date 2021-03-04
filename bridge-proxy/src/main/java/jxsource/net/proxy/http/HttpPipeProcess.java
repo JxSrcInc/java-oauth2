@@ -84,13 +84,13 @@ public class HttpPipeProcess {
 						System.err.println(new String(headerBytes));
 						output(headerBytes);
 						String headerValue = null;
-						if ((headerValue = handler.getHeaderValue("Content-Length")) != null) {
+						if ((headerValue = handler.getHeaderValue("Transfer-Encoding")) != null) {
+							step = ChunkContent;
+							isChunkHeader = true;
+						} else if ((headerValue = handler.getHeaderValue("Content-Length")) != null) {
 							step = LengthContent;
 							contentLength = Long.parseLong(headerValue);
 							outputLength = 0;
-						} else if ((headerValue = handler.getHeaderValue("Transfer-Encoding")) != null) {
-							step = ChunkContent;
-							isChunkHeader = true;
 						} else {
 							step = End;
 						}
