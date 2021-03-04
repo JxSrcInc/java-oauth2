@@ -24,16 +24,22 @@ public class HttpWorker implements Worker{
 	private OutputStream localOutput;
 	private InputStream remoteInput;
 	private OutputStream remoteOutput;
-	private HttpPipeProcess procL2R = HttpPipeProcess.build();
-	private HttpPipeProcess procR2L = HttpPipeProcess.build();
+	private HttpPipeProcess procRequest = HttpPipeProcess.build();
+	private HttpPipeProcess procResponse = HttpPipeProcess.build();
 
 	// if logProcess is null, no threadLogProcess run
-	private Log logL2R;
-	private Log logR2L;
+	private Log log;
+	private HttpContext requestContext;
+	private HttpContext responseContext;
 
-	public HttpWorker setLog(Log logL2R, Log logR2L) {
-		this.logL2R = logL2R;
-		this.logR2L = logR2L;
+	// setup by WorkerFactory
+	public HttpWorker setLog(Log log) {
+		this.log = log;
+		return this;
+	}
+	public HttpWorker initHttp(String remoteDomain, int remotePort) {
+		this.requestContext = HttpContext.build(remoteDomain, remotePort).setEditor(new HttpRequestEditor());
+		this.responseContext = HttpContext.build(remoteDomain, remotePort).setEditor(new HttpResponseEditor());
 		return this;
 	}
 
@@ -42,14 +48,14 @@ public class HttpWorker implements Worker{
 		while(true) {
 			// request
 			try {
-			procL2R.proc();
+			procRequest.proc();
 			} catch(Exception e) {
 				logger.error(debugInfo("request error"), e);
 				break;
 			} 
 			// response
 			try {
-			procR2L.proc();
+			procResponse.proc();
 			} catch(Exception e) {
 				logger.error(debugInfo("response error"), e);
 				break;
@@ -77,8 +83,8 @@ public class HttpWorker implements Worker{
 		localOutput = this.localSocket.getOutputStream();
 		remoteInput = this.remoteSocket.getInputStream();
 		remoteOutput = this.remoteSocket.getOutputStream();
-		procL2R.init("L2R", localInput, remoteOutput, logL2R, null);
-		procR2L.init("R2L", remoteInput, localOutput, logR2L, null);
+		procRequest.init("Request", localInput, remoteOutput, log, requestContext);
+		procResponse.init("Response", remoteInput, localOutput, log, responseContext);
 		
 	}
 

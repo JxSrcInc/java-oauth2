@@ -6,8 +6,12 @@ package jxsource.net.proxy.http;
  * LocalToRemote and RemoteToLocal sub classes 
  * can implement different editing process
  */
-public interface HttpEditor {
+public abstract class HttpEditor {
 
-	public abstract byte[] edit(byte[] src);
+	protected HttpContext context;
+	public void setHttpContext(HttpContext context) {
+		this.context = context;
+	}
+	public abstract byte[] edit(HttpHeader bb);
 }
 

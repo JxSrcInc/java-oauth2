@@ -19,6 +19,7 @@ public class HttpUtil {
 	}
 
 	// include last CRLFCRLF
+	@Deprecated
 	public int getHerdersLength(byte[] buf, int size) throws IOException{
 		int count = 0;
 		for (count = 0; count < size; count++) {
@@ -29,18 +30,26 @@ public class HttpUtil {
 		}
 		return -1;
 	}
-	
+
+	// include last CRLFCRLF
+	public int getHerdersLength(ByteBuffer buf) {
+		int index = buf.indexOfCRLFCRLF();
+		return (index==-1?index:index+4);
+	}
+
 	// include last CRLF
 	public int getChunkHeaderLength(ByteBuffer buf) {
-		int count = 0;
-		byte[] bytes = buf.getArray();
-		for (count = 0; count < bytes.length; count++) {
-			if (count > 1 && bytes[count] == LF && bytes[count - 1] == CR) {
-				// TODO: remove additional bytes before request Method and response HTTP
-				return count+1;
-			}
-		}
-		return -1;
+		int index = buf.indexOfCRLF();
+		return (index==-1?index:index+2);
+//		int count = 0;
+//		byte[] bytes = buf.getArray();
+//		for (count = 0; count < bytes.length; count++) {
+//			if (count > 1 && bytes[count] == LF && bytes[count - 1] == CR) {
+//				// TODO: remove additional bytes before request Method and response HTTP
+//				return count+1;
+//			}
+//		}
+//		return -1;
 
 	}
 

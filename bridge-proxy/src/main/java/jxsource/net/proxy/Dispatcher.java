@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import jxsource.net.proxy.http.HttpContext;
+import jxsource.net.proxy.http.HttpWorker;
 import jxsource.net.proxy.util.ThreadUtil;
 
 import org.apache.commons.httpclient.Header;
@@ -159,6 +161,9 @@ public class Dispatcher implements Runnable {
 			throw new IOException();
 		}
 		worker = WorkerFactory.build().create(remoteDomain, remotePort);
+		if(worker instanceof HttpWorker) {
+			((HttpWorker)worker).initHttp(remoteDomain, remotePort);
+		}
 		worker.init(localSocket, localSocketInput, remoteSocket);
 		ThreadUtil.createThread(worker).start();
 		log.debug(logMsg("end Dispatcher with starting Worker"));

@@ -19,7 +19,6 @@ public class HttpPipeProcess {
 		private HttpUtil httpUtil = HttpUtil.build();
 		private HttpHeader handler = HttpHeader.build();
 		private String name;
-		private HttpEditor editor;
 		private boolean httpBodyLog;
 
 		static final byte b13 = 13;
@@ -38,18 +37,19 @@ public class HttpPipeProcess {
 		private int chunkSize;
 		private byte[] chunkHeader;
 		private boolean lastChunk;
+		private HttpContext context;
 
 		public static HttpPipeProcess build() {
 			return new HttpPipeProcess();
 		}
 
-		public HttpPipeProcess init(String name, InputStream in, OutputStream out, Log appLog, HttpEditor editor) {
+		public HttpPipeProcess init(String name, InputStream in, OutputStream out, Log appLog, HttpContext context) {
 			this.in = in;
 			this.out = out;
 			// logOut may be null if no output requires
 			this.appLog = appLog;
 			this.name = name;
-			this.editor = editor;
+			this.context = context;
 			this.httpBodyLog = false;// httpBodyLog;
 			return this;
 		}
@@ -71,17 +71,17 @@ public class HttpPipeProcess {
 					buf.append(b, 0, i);
 					if (header) {
 						int headerLen = 0;
-						if ((headerLen = httpUtil.getHerdersLength(buf.getArray(), buf.getLimit())) < 0) {
+						if ((headerLen = httpUtil.getHerdersLength(buf)) < 0) {
 							// headers not complete. do next read
 							continue;
 						}
 						// remove headerLen bytes from buf
 						byte[] headerBytes = buf.remove(headerLen);
-//						System.err.println(new String(headerBytes));
-						// TODO: process headers
 						handler.init(headerBytes);
-						// TODO: modify header
-//						headerBytes = editor.edit(headerBytes);
+						if(context != null) {
+							headerBytes = context.getEditor().edit(handler);
+						}
+						System.err.println(new String(headerBytes));
 						output(headerBytes);
 						String headerValue = null;
 						if ((headerValue = handler.getHeaderValue("Content-Length")) != null) {

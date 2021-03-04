@@ -2,7 +2,7 @@ package jxsource.net.proxy.util;
 
 import java.util.Arrays;
 
-import jxsource.util.buffer.BufferException;
+import jxsource.net.proxy.exception.BufferException;
 
 public class ByteBuffer {
 	@Override
@@ -32,7 +32,9 @@ public class ByteBuffer {
 	public static final byte CR = 13;
 	public static final byte LF = 10;
 	public static final byte[] CRLF = new byte[] {CR,LF};
+	public static final String StrCRLF = new String(CRLF);
 	public static final byte[] CRLFCRLF = new byte[] {CR,LF,CR,LF};
+	public static final String StrCRLFCRLF = new String(CRLFCRLF);
 	protected int increasesize = 1024 * 8 * 4;
 	protected byte[] array = new byte[increasesize];
 	// data length in array
@@ -140,16 +142,21 @@ public class ByteBuffer {
 	public int getLimit() {
 		return limit;
 	}
-	public void append(byte[] append) {
+	public ByteBuffer append(String append) {
+		append(append.getBytes());
+		return this;
+	}
+	public ByteBuffer append(byte[] append) {
 //		System.out.println(append.length+","+array.length);
 		while(limit+append.length > array.length) {
 			increaseSize();
 		}
 		System.arraycopy(append, 0, array, limit, append.length);
 		limit += append.length;
+		return this;
 	}
 	
-	public void append(byte[] append, int offset, int length) {
+	public ByteBuffer append(byte[] append, int offset, int length) {
 //		System.out.println(length+","+array.length);
 		if(length > (append.length - offset)) {
 			throw new BufferException(getClass().getName()+
@@ -161,16 +168,19 @@ public class ByteBuffer {
 		}
 		System.arraycopy(append, offset, array, limit, length);
 		limit += length;
+		return this;
 	}
 
-	public void append(byte append) {
+	public ByteBuffer append(byte append) {
 		if(limit+1 > array.length) {
 			increaseSize();
 		}
 		array[limit++] = append;
+		return this;
 	}
-	public void append(ByteBuffer append) {
+	public ByteBuffer append(ByteBuffer append) {
 		append(append.getArray());
+		return this;
 	}
 	// compare bytes before limit
 	public boolean equals(ByteBuffer other) {
@@ -254,6 +264,7 @@ public class ByteBuffer {
 		}
 		return -1;
 	}
+	
 	// return the first index of search byte[] in array
 	// starting from startIndex (include)
 	public int indexOf(byte[] b, int startIndex) {
@@ -329,6 +340,14 @@ public class ByteBuffer {
 			}
 		}
 		return -1;
+	}
+	
+	public int indexOfCRLF() {
+		return indexOf(CRLF);
+	}
+
+	public int indexOfCRLFCRLF() {
+		return indexOf(CRLFCRLF);
 	}
 
 	/*
