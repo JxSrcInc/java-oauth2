@@ -4,6 +4,24 @@ public class HttpContext {
 	private String remoteHost;
 	private int remotePort;
 	private HttpEditor editor;
+	private RequestLog requestLog;
+	private ResponseLog responseLog;
+
+	public RequestLog getRequestLog() {
+		return requestLog;
+	}
+
+	public void setRequestLog(RequestLog requestLog) {
+		this.requestLog = requestLog;
+	}
+
+	public ResponseLog getResponseLog() {
+		return responseLog;
+	}
+
+	public void setResponseLog(ResponseLog responseLog) {
+		this.responseLog = responseLog;
+	}
 
 	public HttpContext setRemoteHost(String host) {
 		remoteHost = host;

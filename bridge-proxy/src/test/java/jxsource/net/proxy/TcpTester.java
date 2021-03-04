@@ -16,6 +16,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import jxsource.net.proxy.http.HttpLog;
 import jxsource.net.proxy.http.HttpPipeProcess;
+import jxsource.net.proxy.http.ResponseLog;
 
 public class TcpTester {
 
@@ -44,22 +45,18 @@ public class TcpTester {
 			out.flush();
 			InputStream in = s.getInputStream();
 			
-			HttpPipeProcess p = HttpPipeProcess.build();
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			p.init("test", in, bout, new HttpLog(), null).proc();
-			System.out.println("****** recieved data:");
-			System.out.println(bout.toString());
+//			HttpPipeProcess p = HttpPipeProcess.build();
+//			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+//			p.init("test", in, bout, new ResponseLog(), null).proc();
+//			System.out.println("****** recieved data:");
+//			System.out.println(bout.toString());
 
-//			buf = new byte[1024*8];
-//			int i=0;
-//			long cnt = 0;
-//			while((i=in.read(buf)) != -1) {
-//				if(cnt == 0) System.out.println(""+((char)buf[0])+'\n');
-//					System.out.println(new String(buf, 0, i));
-//				cnt += i;
-////				System.out.println("*** "+cnt);
-//			}
-//			System.out.println(sockaddr);
+			buf = new byte[1024*8];
+			int i=0;
+			while((i=in.read(buf)) != -1) {
+					System.out.println(new String(buf, 0, i));
+			}
+			System.out.println(sockaddr);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

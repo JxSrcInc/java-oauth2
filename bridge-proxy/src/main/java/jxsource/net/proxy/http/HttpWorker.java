@@ -77,8 +77,12 @@ public class HttpWorker implements Worker{
 		localOutput = this.localSocket.getOutputStream();
 		remoteInput = this.remoteSocket.getInputStream();
 		remoteOutput = this.remoteSocket.getOutputStream();
-		procRequest.init("Request", localInput, remoteOutput, new HttpLog(), requestContext);
-		procResponse.init("Response", remoteInput, localOutput, new HttpLog(), responseContext);
+		RequestLog requestLog = new RequestLog();
+		requestLog.setHttpContext(requestContext);
+		ResponseLog responseLog = new ResponseLog().setRequestLog(requestLog);
+		responseLog.setHttpContext(responseContext);
+		procRequest.init("Request", localInput, remoteOutput, requestLog, requestContext);
+		procResponse.init("Response", remoteInput, localOutput, responseLog, responseContext);
 		
 	}
 

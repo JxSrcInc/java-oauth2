@@ -2,11 +2,17 @@ package jxsource.net.proxy.http;
 
 import java.io.PrintStream;
 
-public class HttpLog {
-	private boolean header = true;
-	private boolean content;
-	private PrintStream ps = System.out;
-	
+public abstract class HttpLog {
+	protected boolean header = true;
+	protected boolean content;
+	protected PrintStream ps = System.out;
+	protected HttpContext context;
+
+	public HttpLog setHttpContext(HttpContext context) {
+		this.context = context;
+		return this;
+	}
+
 	public HttpLog setPrintStream(PrintStream ps) {
 		this.ps = ps;
 		return this;
@@ -19,10 +25,7 @@ public class HttpLog {
 		this.content = content;
 		return this;
 	}
-	public void logHeader(byte[] data) {
-		if(header)
-		ps.println(new String(data));
-	};
+	public abstract void logHeader(byte[] data);
 
 	public void logContent(byte[] data) {
 		if(content)
