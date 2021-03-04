@@ -1,4 +1,4 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.Worker;
 import jxsource.net.proxy.util.ThreadUtil;
 
 /*

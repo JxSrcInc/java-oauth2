@@ -4,6 +4,9 @@ import jxsource.net.proxy.http.HttpRequestEditor;
 import jxsource.net.proxy.http.HttpContext;
 import jxsource.net.proxy.http.HttpResponseEditor;
 import jxsource.net.proxy.http.HttpWorker;
+import jxsource.net.proxy.tcp.PipeLocalToRemote;
+import jxsource.net.proxy.tcp.PipeRemoteToLocal;
+import jxsource.net.proxy.tcp.PipeWorker;
 
 public class WorkerFactory {
 
@@ -19,11 +22,10 @@ public class WorkerFactory {
 		switch(connType) {
 		case Constants.ConnTcpType:
 			return new PipeWorker().setPipeLocalToRemote(new PipeLocalToRemote())
-					.setPipeRemoteToLocal(new PipeRemoteToLocal())
-					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
+					.setPipeRemoteToLocal(new PipeRemoteToLocal());
+//					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
 		case Constants.CoonHttpType:	
-			return new HttpWorker()
-					.setLog(appContext.getLog());
+			return new HttpWorker();
 			default:
 				throw new RuntimeException("invalide connType: "+connType);
 		}

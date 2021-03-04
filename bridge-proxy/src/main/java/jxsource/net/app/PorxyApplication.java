@@ -11,13 +11,14 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
+
+import jxsource.net.proxy.ProxySocketServer;
+import jxsource.net.proxy.tcp.PipeWorker;
+
 import org.springframework.context.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import jxsource.net.proxy.ProxySocketServer;
-import jxsource.net.proxy.PipeWorker;
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "jxsource.net.proxy" })

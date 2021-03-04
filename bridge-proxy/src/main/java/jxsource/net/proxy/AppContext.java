@@ -5,6 +5,8 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import jxsource.net.proxy.tcp.Log;
+
 /*
  * It is a global service register 
  */
@@ -18,7 +20,7 @@ public class AppContext {
 	private String appType;
 	private String connType;
 	
-	private boolean httpBodyLog = false;
+	private boolean tcpLog = false;
 	private String remoteDomain;
 	private int remotePort;
 	private int serverSocketPort;
@@ -72,12 +74,12 @@ public class AppContext {
 		return this;
 	}
 
-	public boolean isHttpBodyLog() {
-		return httpBodyLog;
+	public boolean isTcpLog() {
+		return tcpLog;
 	}
 
-	public AppContext setHttpBodyLog(boolean httpBodyLog) {
-		this.httpBodyLog = httpBodyLog;
+	public AppContext setTcpLog(boolean httpBodyLog) {
+		this.tcpLog = httpBodyLog;
 		return this;
 	}
 

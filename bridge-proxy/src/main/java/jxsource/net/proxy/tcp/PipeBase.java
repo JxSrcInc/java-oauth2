@@ -1,4 +1,4 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.Constants;
 import jxsource.net.proxy.util.ThreadUtil;
 
 /*
@@ -38,13 +39,13 @@ public class PipeBase extends Pipe {
 				} catch (Exception ioe) {
 					throw new IOException("Output stream error", ioe);
 				}
-//				if (activeLog && log != null) {
+				if (activeLog && log != null) {
 					if (name.contains(Constants.LocalToRemote)) {
 						log.logLocalToRemote(buf, 0, i);
 					} else {
 						log.logRemoteToLocal(buf, 0, i);
 					}
-//				}
+				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.tcp;
 
 public class PrintLog extends Log {
 	public void logLocalToRemote(byte[] data) {

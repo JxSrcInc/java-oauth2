@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import jxsource.net.proxy.Pipe;
+import jxsource.net.proxy.tcp.Pipe;
 
 public class TestPipe extends Pipe {
 

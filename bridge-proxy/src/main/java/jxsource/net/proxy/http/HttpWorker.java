@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jxsource.net.proxy.Log;
-import jxsource.net.proxy.PipeLocalToRemote;
-import jxsource.net.proxy.PipeRemoteToLocal;
-import jxsource.net.proxy.PipeWorker;
 import jxsource.net.proxy.Worker;
+import jxsource.net.proxy.tcp.Log;
+import jxsource.net.proxy.tcp.PipeLocalToRemote;
+import jxsource.net.proxy.tcp.PipeRemoteToLocal;
+import jxsource.net.proxy.tcp.PipeWorker;
 import jxsource.net.proxy.util.ThreadUtil;
 
 public class HttpWorker implements Worker{
@@ -28,15 +28,9 @@ public class HttpWorker implements Worker{
 	private HttpPipeProcess procResponse = HttpPipeProcess.build();
 
 	// if logProcess is null, no threadLogProcess run
-	private Log log;
 	private HttpContext requestContext;
 	private HttpContext responseContext;
 
-	// setup by WorkerFactory
-	public HttpWorker setLog(Log log) {
-		this.log = log;
-		return this;
-	}
 	public HttpWorker initHttp(String remoteHost, int remotePort) {
 		this.requestContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor());
 		this.responseContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor());
@@ -83,8 +77,8 @@ public class HttpWorker implements Worker{
 		localOutput = this.localSocket.getOutputStream();
 		remoteInput = this.remoteSocket.getInputStream();
 		remoteOutput = this.remoteSocket.getOutputStream();
-		procRequest.init("Request", localInput, remoteOutput, log, requestContext);
-		procResponse.init("Response", remoteInput, localOutput, log, responseContext);
+		procRequest.init("Request", localInput, remoteOutput, new HttpLog(), requestContext);
+		procResponse.init("Response", remoteInput, localOutput, new HttpLog(), responseContext);
 		
 	}
 

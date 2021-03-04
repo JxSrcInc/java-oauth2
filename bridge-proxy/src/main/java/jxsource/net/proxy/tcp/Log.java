@@ -1,4 +1,6 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.tcp;
+
+import jxsource.net.proxy.Constants;
 
 public abstract class Log {
 

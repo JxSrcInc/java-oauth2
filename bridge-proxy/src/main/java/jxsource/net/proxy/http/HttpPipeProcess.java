@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import jxsource.net.proxy.Log;
+import jxsource.net.proxy.tcp.Log;
 import jxsource.net.proxy.util.ByteBuffer;
 import jxsource.net.proxy.util.HttpUtil;
 import jxsource.net.proxy.util.ThreadUtil;
@@ -15,7 +15,7 @@ import jxsource.net.proxy.util.ThreadUtil;
 public class HttpPipeProcess {
 		private InputStream in;
 		private OutputStream out;
-		private Log appLog;
+		private HttpLog log;
 		private HttpUtil httpUtil = HttpUtil.build();
 		private HttpHeader handler = HttpHeader.build();
 		private String name;
@@ -43,11 +43,11 @@ public class HttpPipeProcess {
 			return new HttpPipeProcess();
 		}
 
-		public HttpPipeProcess init(String name, InputStream in, OutputStream out, Log appLog, HttpContext context) {
+		public HttpPipeProcess init(String name, InputStream in, OutputStream out, HttpLog appLog, HttpContext context) {
 			this.in = in;
 			this.out = out;
 			// logOut may be null if no output requires
-			this.appLog = appLog;
+			this.log = appLog;
 			this.name = name;
 			this.context = context;
 			this.httpBodyLog = false;// httpBodyLog;
@@ -81,7 +81,6 @@ public class HttpPipeProcess {
 						if(context != null) {
 							headerBytes = context.getEditor().edit(handler);
 						}
-						System.err.println(new String(headerBytes));
 						output(headerBytes);
 						String headerValue = null;
 						if ((headerValue = handler.getHeaderValue("Transfer-Encoding")) != null) {
@@ -203,8 +202,8 @@ public class HttpPipeProcess {
 			out.write(data);
 //			System.out.println("output " + data.length);
 			out.flush();
-			if (appLog != null) {
-				appLog.logPipe(name, data);
+			if (log != null) {
+				log.print(name, data);
 			}
 			return data.length;
 		}

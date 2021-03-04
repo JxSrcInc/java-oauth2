@@ -18,8 +18,8 @@ public class Configuration {
 	@Value("${proxy.app.type:bridge}")
 	private String appType;
 
-	@Value("${proxy.http.body-log:true}")
-	boolean httpBodyLog;
+	@Value("${proxy.tcp.log:true}")
+	boolean tcpLog;
 	@Value("${proxy.connect.type:tcp}")
 	private String connType;
 	
@@ -42,7 +42,7 @@ public class Configuration {
 		
 		System.err.println("proxy.app.type="+appType);
 
-		System.err.println("proxy.http.body-log="+httpBodyLog);
+		System.err.println("proxy.http.body-log="+tcpLog);
 		System.err.println("proxy.connect.type="+connType);
 
 		System.err.println("proxy.remote.domain="+remoteDomain);
@@ -53,14 +53,14 @@ public class Configuration {
 			AppContext.get()
 			.setTlsOutGoingSocket(tlsOutGoing)
 			.setTlsInComingServerSocket(thsInComing)
-			.setHttpBodyLog(httpBodyLog)
+			.setTcpLog(tcpLog)
 			.setAppType(appType)
 			.setConnType(connType)
 			.setRemoteDomain(remoteDomain)
 			.setRemotePort(remotePort)
-			.setServerSocketPort(serverPort)
+			.setServerSocketPort(serverPort);
 
-			.setLog(log);
+//			.setLog(log);
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: refine

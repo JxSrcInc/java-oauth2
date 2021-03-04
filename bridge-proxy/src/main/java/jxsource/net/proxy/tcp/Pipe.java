@@ -1,4 +1,4 @@
-package jxsource.net.proxy;
+package jxsource.net.proxy.tcp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
