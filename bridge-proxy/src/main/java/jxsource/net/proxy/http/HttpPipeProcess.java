@@ -13,44 +13,40 @@ import jxsource.net.proxy.util.ThreadUtil;
 /*
  * Base class to handle each Http request and response
  */
-public class HttpPipeProcess {
-		private InputStream in;
-		private OutputStream out;
-		private HttpLog httpLog;
-		private HttpUtil httpUtil = HttpUtil.build();
-		private HttpHeader httpHeader = HttpHeader.build();
-		private String name;
+public abstract class HttpPipeProcess {
+		protected InputStream in;
+		protected OutputStream out;
+		protected HttpLog httpLog;
+		protected HttpUtil httpUtil = HttpUtil.build();
+		protected HttpHeader httpHeader = HttpHeader.build();
+		protected String name;
 
 		static final byte b13 = 13;
 		static final byte b10 = 10;
 
-		private final int End = 0;
-		private final int LengthContent = 1;
-		private final int ChunkContent = 2;
+		protected final int End = 0;
+		protected final int LengthContent = 1;
+		protected final int ChunkContent = 2;
 
 		// all those variables must reset in each transaction
-		private int step; // it has three values: End, LengthContent and ChunkContent
-		private long contentLength;
-		private long outputLength;
-		private boolean header;
-		private boolean isChunkHeader;
-		private int chunkSize;
-		private byte[] chunkHeader;
-		private boolean lastChunk;
-		private ProcessContext context;
+		protected int step; // it has three values: End, LengthContent and ChunkContent
+		protected long contentLength;
+		protected long outputLength;
+		protected boolean header;
+		protected boolean isChunkHeader;
+		protected int chunkSize;
+		protected byte[] chunkHeader;
+		protected boolean lastChunk;
+		protected ProcessContext context;
+		protected HttpEditor editor;
 
-		public static HttpPipeProcess build() {
-			return new HttpPipeProcess();
-		}
-
-		public HttpPipeProcess init(String name, InputStream in, OutputStream out, HttpLog appLog, ProcessContext context) {
+		public void init(String name, InputStream in, OutputStream out, HttpLog appLog, ProcessContext context) {
 			this.in = in;
 			this.out = out;
 			// logOut may be null if no output requires
 			this.httpLog = appLog;
 			this.name = name;
 			this.context = context;
-			return this;
 		}
 
 		public void proc() throws IOException {
@@ -87,7 +83,7 @@ public class HttpPipeProcess {
 						// TODO: change to use startSave parameter instead of using context attribute
 						httpLog.startSave();
 						// edit headers
-						headerBytes = context.getEditor().edit(httpHeader);
+						headerBytes = editor.edit(httpHeader);
 						output(headerBytes);
 						httpLog.logHeader(headerBytes);
 						String headerValue = null;

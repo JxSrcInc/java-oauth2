@@ -100,25 +100,25 @@ public class FileLog {
 	}
 
 	private boolean init() {
-		if (!context.isDownloadData()) {
+		if (!context.getSessionContext().isDownloadData()) {
 			return false;
 		}
 		if (out != null) {
 			return true;
 		}
-		File dir = new File(context.getDownloadDir());
+		File dir = new File(context.getSessionContext().getDownloadDir());
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
-				System.out.println("Cannot create dir " + context.getDownloadDir());
+				System.out.println("Cannot create dir " + context.getSessionContext().getDownloadDir());
 				return false;
 			}
 		}
-		if (context.isDownloadData()) {
+		if (context.getSessionContext().isDownloadData()) {
 			String extion = getContentType();
 			if (extion != null) {
-				String downloadMime = context.getDownloadMime();
+				String downloadMime = context.getSessionContext().getDownloadMime();
 				if (downloadMime.contains(extion)) {
-					filename = context.getDownloadDir() + '/' + type+'-'+context.getRemoteHost()
+					filename = context.getSessionContext().getDownloadDir() + '/' + type+'-'+context.getSessionContext().getRemoteHost()
 							+ '-'+Long.toString(System.currentTimeMillis()) + '.' + extion;
 					System.out.println("*** init "+filename);
 					try {
@@ -136,7 +136,7 @@ public class FileLog {
 	}
 
 	protected String getContentType() {
-		String contentType = context.getValue(Constants.ContentType);
+		String contentType = context.getSessionContext().getValue(Constants.ContentType);
 		if (contentType != null) {
 			int i = contentType.indexOf(";");
 			if (i > 0) {

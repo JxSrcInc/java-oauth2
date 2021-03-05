@@ -24,8 +24,8 @@ public class HttpWorker implements Worker{
 	private OutputStream localOutput;
 	private InputStream remoteInput;
 	private OutputStream remoteOutput;
-	private HttpPipeProcess procRequest = HttpPipeProcess.build();
-	private HttpPipeProcess procResponse = HttpPipeProcess.build();
+	private RequestProcess procRequest = RequestProcess.build();
+	private ResponseProcess procResponse = ResponseProcess.build();
 
 	// if logProcess is null, no threadLogProcess run
 	private ProcessContext requestContext;
@@ -33,14 +33,15 @@ public class HttpWorker implements Worker{
 
 	public HttpWorker initHttp(String remoteHost, int remotePort, 
 			boolean downloadData, String downloadDir, String downloadMime) {
-		this.requestContext = ProcessContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor())
+		SessionContext session = new SessionContext()
+				.setRemoteHost(remoteHost)
+				.setRemotePort(remotePort)
 				.setDownloadData(downloadData)
 				.setDownloadDir(downloadDir)
 				.setDownloadMime(downloadMime);
-		this.responseContext = ProcessContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor())
-				.setDownloadData(downloadData)
-				.setDownloadDir(downloadDir)
-				.setDownloadMime(downloadMime);
+				
+		this.requestContext = new ProcessContext().setSessionContext(session);
+		this.responseContext = new ProcessContext().setSessionContext(session);
 		return this;
 	}
 

@@ -21,7 +21,7 @@ public abstract class HttpLog {
 	}
 	protected HttpLog(ProcessContext context) {
 		this.context = context;
-		downloadData = context.isDownloadData();
+		downloadData = context.getSessionContext().isDownloadData();
 	}
 
 	public HttpLog setPrintStream(PrintStream ps) {
