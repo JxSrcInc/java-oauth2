@@ -8,9 +8,11 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="proxy.connect.type" value="http"/>
+        <mapEntry key="proxy.download.data" value="true"/>
         <mapEntry key="proxy.log" value="jxsource.net.proxy.http.HttpLog"/>
-        <mapEntry key="proxy.remote.domain" value="localhost"/>
+        <mapEntry key="proxy.remote.host" value="localhost"/>
         <mapEntry key="proxy.remote.port" value="8903"/>
+        <mapEntry key="proxy.server.host" value="localhost"/>
         <mapEntry key="proxy.server.port" value="9000"/>
         <mapEntry key="proxy.tls.out-going.socket" value="false"/>
     </mapAttribute>

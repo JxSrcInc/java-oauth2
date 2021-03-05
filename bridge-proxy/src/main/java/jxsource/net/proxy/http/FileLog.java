@@ -21,25 +21,30 @@ public class FileLog {
 	private ByteBuffer cache;
 	private long processed;
 	private String filename;
-	private String type;
+	private String logName;
+	
+	private String contentEncoding;
+	private String transferEncoding;
+	private String contentType;
+	private String contentLength;
 	
 	public static FileLog build(ProcessContext context, String type) {
 		FileLog fileLog = new FileLog(context, type);
 		return fileLog.init() ? fileLog : null;
 	}
 
-	private FileLog(ProcessContext context, String type) {
+	private FileLog(ProcessContext context, String logName) {
 		this.context = context;
-		this.type = type;
+		this.logName = logName;
 		reset();
 	}
-
+	
 	public void save(byte[] data) {
-		System.out.println("*** save "+filename+","+context.getValue(Constants.ContentEncoding)+","+data.length);
+//		System.err.println("*** save "+debugInfo()+","+data.length);
 		if (out != null) {
 			try {
-				if ("gaip".equals(context.getValue(Constants.ContentEncoding))
-						|| "br".equals(context.getValue(Constants.ContentEncoding))) {
+				if ("gaip".equals(contentEncoding)
+						|| "br".equals(contentEncoding)) {
 					cache.append(data);
 				} else {
 					out.write(data);
@@ -55,7 +60,7 @@ public class FileLog {
 
 	public void close() {
 		try {
-			if (cache.getLimit() > 0 && context.getValue(Constants.ContentEncoding).equals("gzip")) {
+			if (cache.getLimit() > 0 && contentEncoding.equals("gzip")) {
 				byte[] data = cache.getArray();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				GZIPInputStream gis = new GZIPInputStream(in);
@@ -67,7 +72,7 @@ public class FileLog {
 					processed += i;
 				}
 				gis.close();
-			} else if (cache.getLimit() > 0 && context.getValue(Constants.ContentEncoding).equals("br")) {
+			} else if (cache.getLimit() > 0 && contentEncoding.equals("br")) {
 				byte[] data = cache.getArray();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				BrotliInputStream bis = new BrotliInputStream(in);
@@ -81,11 +86,11 @@ public class FileLog {
 				bis.close();
 			}
 			out.close();
-			System.out.println("*** finish "+filename+","+context.getValue(Constants.ContentEncoding)+","+processed);
-			System.out.println("*** -----------------------------");
+			System.err.println("*** finish "+debugInfo()+", processed="+processed);
+			System.err.println("*** -----------------------------");
 		} catch (Exception e) {
 			String msg = String.format("Error to save data with Content-Encoding '%s', len=%d, processed=%d, data:\n%s",
-					context.getValue(Constants.ContentEncoding), cache.getLimit(), processed,
+					contentEncoding, cache.getLimit(), processed,
 					new String(cache.getArray()));
 			log.error(msg,e);
 		} finally {
@@ -98,6 +103,11 @@ public class FileLog {
 		cache = new ByteBuffer();
 		processed = 0;
 	}
+	
+	private String debugInfo() {
+		return String.format("file=%s, encode=%s, trns=%s, type=%s, len=%s", filename,
+				contentEncoding,transferEncoding,contentType,contentLength);
+	}
 
 	private boolean init() {
 		if (!context.getSessionContext().isDownloadData()) {
@@ -106,10 +116,16 @@ public class FileLog {
 		if (out != null) {
 			return true;
 		}
+		HttpHeader headers = (HttpHeader)context.getAttribute(Constants.HttpHeaders);
+		contentEncoding = headers.getFirstHeader(Constants.ContentEncoding);
+		transferEncoding = headers.getFirstHeader(Constants.TransferEncoding);
+		contentType = headers.getFirstHeader(Constants.ContentType);
+		contentLength = headers.getFirstHeader(Constants.ContentLength);
+
 		File dir = new File(context.getSessionContext().getDownloadDir());
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
-				System.out.println("Cannot create dir " + context.getSessionContext().getDownloadDir());
+				System.err.println("Cannot create dir " + context.getSessionContext().getDownloadDir());
 				return false;
 			}
 		}
@@ -118,9 +134,9 @@ public class FileLog {
 			if (extion != null) {
 				String downloadMime = context.getSessionContext().getDownloadMime();
 				if (downloadMime.contains(extion)) {
-					filename = context.getSessionContext().getDownloadDir() + '/' + type+'-'+context.getSessionContext().getRemoteHost()
+					filename = context.getSessionContext().getDownloadDir() + '/' + logName+'-'+context.getSessionContext().getRemoteHost()
 							+ '-'+Long.toString(System.currentTimeMillis()) + '.' + extion;
-					System.out.println("*** init "+filename);
+//					System.err.println("*** init "+debugInfo());
 					try {
 						out = new FileOutputStream(filename);
 						return true;
@@ -136,7 +152,6 @@ public class FileLog {
 	}
 
 	protected String getContentType() {
-		String contentType = context.getSessionContext().getValue(Constants.ContentType);
 		if (contentType != null) {
 			int i = contentType.indexOf(";");
 			if (i > 0) {

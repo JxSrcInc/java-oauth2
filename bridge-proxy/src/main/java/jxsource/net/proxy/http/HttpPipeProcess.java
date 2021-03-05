@@ -74,15 +74,11 @@ public abstract class HttpPipeProcess {
 						byte[] headerBytes = buf.remove(headerLen);
 						httpHeader.init(headerBytes);
 						// cache Content-Type for FileLog to select file extension when saving content to file
-//							System.out.println(httpHeader.getFirstHeader(Constants.ContentType));
-//							System.out.println(httpHeader.getFirstHeader(Constants.ContentEncoding));
-//							System.out.println(httpHeader.getFirstHeader(Constants.TransferEncoding));
-//							System.out.println(httpHeader.getFirstHeader(Constants.ContentLength));
-						context.addAttribute(Constants.ContentType, httpHeader.getFirstHeader(Constants.ContentType));
-						context.addAttribute(Constants.ContentEncoding, httpHeader.getFirstHeader(Constants.ContentEncoding));
-						// TODO: change to use startSave parameter instead of using context attribute
-						httpLog.startSave();
-						// edit headers
+//						context.addAttribute(Constants.ContentType, httpHeader.getFirstHeader(Constants.ContentType));
+//						context.addAttribute(Constants.ContentEncoding, httpHeader.getFirstHeader(Constants.ContentEncoding));
+//						context.addAttribute(Constants.TransferEncoding, httpHeader.getFirstHeader(Constants.TransferEncoding));
+						context.addAttribute(Constants.HttpHeaders, httpHeader);
+									// edit headers
 						headerBytes = editor.edit(httpHeader);
 						output(headerBytes);
 						httpLog.logHeader(headerBytes);
@@ -90,10 +86,15 @@ public abstract class HttpPipeProcess {
 						if ((headerValue = httpHeader.getFirstHeader(Constants.TransferEncoding)) != null) {
 							step = ChunkContent;
 							isChunkHeader = true;
+							httpLog.startSave();
 						} else if ((headerValue = httpHeader.getFirstHeader(Constants.ContentLength)) != null) {
 							step = LengthContent;
 							contentLength = Long.parseLong(headerValue);
+							// reset Content-Length output count
 							outputLength = 0;
+							if(contentLength > 0) {
+								httpLog.startSave();
+							}
 						} else {
 							step = End;
 						}
@@ -102,6 +103,7 @@ public abstract class HttpPipeProcess {
 					// process body after or skip header process.
 					switch (step) {
 					case LengthContent:
+						httpLog.logContent(buf.getArray());
 						outputLength += output(buf);
 						if (outputLength < contentLength) {
 							// read more from input stream
@@ -179,25 +181,6 @@ public abstract class HttpPipeProcess {
 				// chunk complete
 				output(buf);
 				return true;
-			}
-		}
-
-		public void procLengthContent(int length, InputStream in) throws IOException {
-			byte[] content = new byte[length];
-			int pos = 0;
-			while (pos < length) {
-				try {
-					int i = in.read(content, pos, length - pos);
-					pos += i;
-				} catch (Exception ioe) {
-					throw new IOException("Output stream error", ioe);
-				}
-			}
-			try {
-				output(content);
-				httpLog.logContent(content);
-			} catch (Exception e) {
-				throw new IOException(name + " output Http body error", e);
 			}
 		}
 

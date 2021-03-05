@@ -8,7 +8,7 @@ import java.util.Map;
  * Use SessionContext to get common information and pass information between them
  */
 public class ProcessContext {
-//	private String remoteHost;
+	private String name;
 //	private int remotePort;
 	private Map<String, Object> attributes = new HashMap<>();
 	private SessionContext sessionContext;
@@ -18,6 +18,9 @@ public class ProcessContext {
 //	// comma separated string
 //	private String downloadMime;
 
+	public ProcessContext(String name) {
+		this.name = name;
+	}
 	
 	public SessionContext getSessionContext() {
 		return sessionContext;

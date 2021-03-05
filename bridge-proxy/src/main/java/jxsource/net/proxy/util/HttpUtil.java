@@ -14,12 +14,12 @@ public class HttpUtil {
 	public static HttpUtil build() {
 		return new HttpUtil();
 	}
+	// include last CRLFCRLF
 	public int getHerdersLength(byte[] buf) throws IOException{
 		return getHerdersLength(buf, buf.length);
 	}
 
 	// include last CRLFCRLF
-	@Deprecated
 	public int getHerdersLength(byte[] buf, int size) throws IOException{
 		int count = 0;
 		for (count = 0; count < size; count++) {

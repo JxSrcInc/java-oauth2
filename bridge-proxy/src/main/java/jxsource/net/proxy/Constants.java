@@ -16,5 +16,6 @@ public class Constants {
 	public static final String ContentEncoding = "Content-Encoding";
 	public static final String ContentLength = "Content-Length";
 	public static final String TransferEncoding = "Transfer-Encoding";
-
+	public static final String RequestHeaderBytes = "RequestHeaderBytes";
+	public static final String HttpHeaders = "HttpHeaders";
 }

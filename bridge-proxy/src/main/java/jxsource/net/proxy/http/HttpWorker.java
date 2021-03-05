@@ -40,8 +40,8 @@ public class HttpWorker implements Worker{
 				.setDownloadDir(downloadDir)
 				.setDownloadMime(downloadMime);
 				
-		this.requestContext = new ProcessContext().setSessionContext(session);
-		this.responseContext = new ProcessContext().setSessionContext(session);
+		this.requestContext = new ProcessContext("Request").setSessionContext(session);
+		this.responseContext = new ProcessContext("Response").setSessionContext(session);
 		return this;
 	}
 
@@ -87,7 +87,7 @@ public class HttpWorker implements Worker{
 		remoteOutput = this.remoteSocket.getOutputStream();
 		RequestLog requestLog = new RequestLog(requestContext);
 		requestLog.setPrintStream(System.err);
-		ResponseLog responseLog = new ResponseLog(responseContext).setRequestLog(requestLog);
+		ResponseLog responseLog = new ResponseLog(responseContext);
 		procRequest.init("Request", localInput, remoteOutput, requestLog, requestContext);
 		procResponse.init("Response", remoteInput, localOutput, responseLog, responseContext);
 		

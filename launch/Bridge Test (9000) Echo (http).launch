@@ -6,6 +6,9 @@
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
     </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="proxy.remote.host" value="localhost"/>
+    </mapAttribute>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jxsource.oauth2.echoserver.EchoServerApplicationTests"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="echo-svr"/>

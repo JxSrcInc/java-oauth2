@@ -6,6 +6,18 @@
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
     </listAttribute>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="proxy.connect.type" value="http"/>
+        <mapEntry key="proxy.download.data" value="true"/>
+        <mapEntry key="proxy.download.dir" value="download"/>
+        <mapEntry key="proxy.download.mime" value="json,javascript, html"/>
+        <mapEntry key="proxy.log" value="jxsource.net.proxy.http.HttpLog"/>
+        <mapEntry key="proxy.remote.host" value="www.google.com"/>
+        <mapEntry key="proxy.remote.port" value="443"/>
+        <mapEntry key="proxy.server.port" value="9004"/>
+        <mapEntry key="proxy.tls.out-going.socket" value="true"/>
+    </mapAttribute>
+    <stringAttribute key="org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE" value="${workspace_loc:/bridge-proxy}/bridge-9004.log"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
@@ -13,8 +25,6 @@
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jxsource.net.app.PorxyApplication"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="bridge-proxy"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--spring.config.location=classpath:application-9004-google.properties"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bridge-proxy"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.debug=handshake"/>
 </launchConfiguration>

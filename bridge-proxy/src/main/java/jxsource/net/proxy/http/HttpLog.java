@@ -4,7 +4,7 @@ import java.io.PrintStream;
 
 public abstract class HttpLog {
 	// enable or disable log for Http Headers 
-	protected boolean header = true;
+	protected boolean header;
 	// enable or disable log for Http Content
 	protected boolean content;
 	// enable or disable download Http Content to file
