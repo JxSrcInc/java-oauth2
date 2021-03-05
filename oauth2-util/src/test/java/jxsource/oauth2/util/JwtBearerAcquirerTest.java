@@ -8,7 +8,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class JwtBearerAcquirerTest {
 
-//	String authHost = "https://devws.ba.ssa.gov:447";
 	String authHost = "http://localhost:8901";
 	String user = "mydomain";
 	String scope = "/accs/availability-srvc";
