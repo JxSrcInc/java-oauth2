@@ -8,8 +8,8 @@ package jxsource.net.proxy.http;
  */
 public abstract class HttpEditor {
 
-	protected HttpContext context;
-	public void setHttpContext(HttpContext context) {
+	protected ProcessContext context;
+	public void setHttpContext(ProcessContext context) {
 		this.context = context;
 	}
 	public abstract byte[] edit(HttpHeader bb);

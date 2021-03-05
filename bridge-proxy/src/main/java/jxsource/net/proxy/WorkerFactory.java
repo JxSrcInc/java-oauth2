@@ -1,7 +1,7 @@
 package jxsource.net.proxy;
 
 import jxsource.net.proxy.http.HttpRequestEditor;
-import jxsource.net.proxy.http.HttpContext;
+import jxsource.net.proxy.http.ProcessContext;
 import jxsource.net.proxy.http.HttpResponseEditor;
 import jxsource.net.proxy.http.HttpWorker;
 import jxsource.net.proxy.tcp.PipeLocalToRemote;

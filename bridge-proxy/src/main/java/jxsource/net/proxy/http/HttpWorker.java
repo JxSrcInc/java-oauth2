@@ -28,16 +28,16 @@ public class HttpWorker implements Worker{
 	private HttpPipeProcess procResponse = HttpPipeProcess.build();
 
 	// if logProcess is null, no threadLogProcess run
-	private HttpContext requestContext;
-	private HttpContext responseContext;
+	private ProcessContext requestContext;
+	private ProcessContext responseContext;
 
 	public HttpWorker initHttp(String remoteHost, int remotePort, 
 			boolean downloadData, String downloadDir, String downloadMime) {
-		this.requestContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor())
+		this.requestContext = ProcessContext.build(remoteHost, remotePort).setEditor(new HttpRequestEditor())
 				.setDownloadData(downloadData)
 				.setDownloadDir(downloadDir)
 				.setDownloadMime(downloadMime);
-		this.responseContext = HttpContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor())
+		this.responseContext = ProcessContext.build(remoteHost, remotePort).setEditor(new HttpResponseEditor())
 				.setDownloadData(downloadData)
 				.setDownloadDir(downloadDir)
 				.setDownloadMime(downloadMime);
@@ -84,10 +84,9 @@ public class HttpWorker implements Worker{
 		localOutput = this.localSocket.getOutputStream();
 		remoteInput = this.remoteSocket.getInputStream();
 		remoteOutput = this.remoteSocket.getOutputStream();
-		RequestLog requestLog = new RequestLog();
-		requestLog.setHttpContext(requestContext);
-		ResponseLog responseLog = new ResponseLog().setRequestLog(requestLog);
-		responseLog.setHttpContext(responseContext);
+		RequestLog requestLog = new RequestLog(requestContext);
+		requestLog.setPrintStream(System.err);
+		ResponseLog responseLog = new ResponseLog(responseContext).setRequestLog(requestLog);
 		procRequest.init("Request", localInput, remoteOutput, requestLog, requestContext);
 		procResponse.init("Response", remoteInput, localOutput, responseLog, responseContext);
 		

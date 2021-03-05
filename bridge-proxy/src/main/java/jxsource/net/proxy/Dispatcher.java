@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import jxsource.net.proxy.http.HttpContext;
+import jxsource.net.proxy.http.ProcessContext;
 import jxsource.net.proxy.http.HttpWorker;
 import jxsource.net.proxy.util.ThreadUtil;
 

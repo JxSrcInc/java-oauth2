@@ -6,48 +6,45 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import jxsource.net.proxy.Constants;
+import jxsource.net.proxy.Dispatcher;
+import jxsource.net.proxy.util.ByteBuffer;
+
 import org.brotli.dec.BrotliInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileLog {
+	private static Logger log = LoggerFactory.getLogger(FileLog.class);
 
-	private HttpContext context;
+	private ProcessContext context;
 	private OutputStream out;
-
-	public static FileLog build(HttpContext context) {
-		FileLog fileLog = new FileLog(context);
+	private ByteBuffer cache;
+	private long processed;
+	private String filename;
+	private String type;
+	
+	public static FileLog build(ProcessContext context, String type) {
+		FileLog fileLog = new FileLog(context, type);
 		return fileLog.init() ? fileLog : null;
 	}
 
-	private FileLog(HttpContext context) {
+	private FileLog(ProcessContext context, String type) {
 		this.context = context;
+		this.type = type;
+		reset();
 	}
 
 	public void save(byte[] data) {
+		System.out.println("*** save "+filename+","+context.getValue(Constants.ContentEncoding)+","+data.length);
 		if (out != null) {
 			try {
-				if (context.getValue(Constants.ContentEncoding).equals("gzip")) {
-					ByteArrayInputStream in = new ByteArrayInputStream(data);
-					GZIPInputStream gis = new GZIPInputStream(in);
-					byte[] buf = new byte[1024 * 8];
-					int i = 0;
-					while ((i = gis.read(buf)) != -1) {
-						out.write(buf, 0, i);
-						out.flush();
-					}
-					gis.close();
-				} else if (context.getValue(Constants.ContentEncoding).equals("br")) {
-					ByteArrayInputStream in = new ByteArrayInputStream(data);
-					BrotliInputStream bis = new BrotliInputStream(in);
-					byte[] buf = new byte[1024 * 8];
-					int i = 0;
-					while ((i = bis.read(buf)) != -1) {
-						out.write(buf, 0, i);
-						out.flush();
-					}
-					bis.close();
+				if ("gaip".equals(context.getValue(Constants.ContentEncoding))
+						|| "br".equals(context.getValue(Constants.ContentEncoding))) {
+					cache.append(data);
 				} else {
 					out.write(data);
 					out.flush();
+					processed += data.length;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -58,10 +55,48 @@ public class FileLog {
 
 	public void close() {
 		try {
+			if (cache.getLimit() > 0 && context.getValue(Constants.ContentEncoding).equals("gzip")) {
+				byte[] data = cache.getArray();
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				GZIPInputStream gis = new GZIPInputStream(in);
+				byte[] buf = new byte[1024 * 8];
+				int i = 0;
+				while ((i = gis.read(buf)) != -1) {
+					out.write(buf, 0, i);
+					out.flush();
+					processed += i;
+				}
+				gis.close();
+			} else if (cache.getLimit() > 0 && context.getValue(Constants.ContentEncoding).equals("br")) {
+				byte[] data = cache.getArray();
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				BrotliInputStream bis = new BrotliInputStream(in);
+				byte[] buf = new byte[1024 * 8];
+				int i = 0;
+				while ((i = bis.read(buf)) != -1) {
+					out.write(buf, 0, i);
+					out.flush();
+					processed += i;
+				}
+				bis.close();
+			}
 			out.close();
+			System.out.println("*** finish "+filename+","+context.getValue(Constants.ContentEncoding)+","+processed);
+			System.out.println("*** -----------------------------");
 		} catch (Exception e) {
-			out = null;
+			String msg = String.format("Error to save data with Content-Encoding '%s', len=%d, processed=%d, data:\n%s",
+					context.getValue(Constants.ContentEncoding), cache.getLimit(), processed,
+					new String(cache.getArray()));
+			log.error(msg,e);
+		} finally {
+			cache = null;
+			out = null;			
 		}
+	}
+	
+	public void reset() {
+		cache = new ByteBuffer();
+		processed = 0;
 	}
 
 	private boolean init() {
@@ -74,7 +109,7 @@ public class FileLog {
 		File dir = new File(context.getDownloadDir());
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
-				System.err.println("Cannot create dir " + context.getDownloadDir());
+				System.out.println("Cannot create dir " + context.getDownloadDir());
 				return false;
 			}
 		}
@@ -83,11 +118,11 @@ public class FileLog {
 			if (extion != null) {
 				String downloadMime = context.getDownloadMime();
 				if (downloadMime.contains(extion)) {
-					String file = context.getDownloadDir() + '/' + context.getRemoteHost()
-							+ Long.toString(System.currentTimeMillis()) + '.' + extion;
-					System.err.println(file);
+					filename = context.getDownloadDir() + '/' + type+'-'+context.getRemoteHost()
+							+ '-'+Long.toString(System.currentTimeMillis()) + '.' + extion;
+					System.out.println("*** init "+filename);
 					try {
-						out = new FileOutputStream(file);
+						out = new FileOutputStream(filename);
 						return true;
 					} catch (Exception e) {
 						// TODO Auto-generated catch block

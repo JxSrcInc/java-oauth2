@@ -3,7 +3,7 @@ package jxsource.net.proxy.http;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpContext {
+public class ProcessContext {
 	private String remoteHost;
 	private int remotePort;
 	private HttpEditor editor;
@@ -21,7 +21,7 @@ public class HttpContext {
 	}
 
 	// comma separated string
-	public HttpContext setDownloadMime(String downloadMime) {
+	public ProcessContext setDownloadMime(String downloadMime) {
 		this.downloadMime = downloadMime;
 		return this;
 	}
@@ -30,7 +30,7 @@ public class HttpContext {
 		return downloadDir;
 	}
 
-	public HttpContext setDownloadDir(String downloadDir) {
+	public ProcessContext setDownloadDir(String downloadDir) {
 		this.downloadDir = downloadDir;
 		return this;
 	}
@@ -39,7 +39,7 @@ public class HttpContext {
 		return downloadData;
 	}
 
-	public HttpContext setDownloadData(boolean downloadData) {
+	public ProcessContext setDownloadData(boolean downloadData) {
 		this.downloadData = downloadData;
 		return this;
 	}
@@ -60,7 +60,7 @@ public class HttpContext {
 		this.responseLog = responseLog;
 	}
 
-	public HttpContext setRemoteHost(String host) {
+	public ProcessContext setRemoteHost(String host) {
 		remoteHost = host;
 		return this;
 	}
@@ -69,7 +69,7 @@ public class HttpContext {
 		return remoteHost;
 	}
 
-	public HttpContext setRemotePort(int port) {
+	public ProcessContext setRemotePort(int port) {
 		remotePort = port;
 		return this;
 	}
@@ -78,26 +78,26 @@ public class HttpContext {
 		return remotePort;
 	}	
 
-	public static HttpContext build(String host, int port) {
-		return new HttpContext().setRemoteHost(host).setRemotePort(port);
+	public static ProcessContext build(String host, int port) {
+		return new ProcessContext().setRemoteHost(host).setRemotePort(port);
 	}
 
 	public HttpEditor getEditor() {
 		return editor;
 	}
 
-	public HttpContext setEditor(HttpEditor editor) {
+	public ProcessContext setEditor(HttpEditor editor) {
 		this.editor = editor;
 		editor.setHttpContext(this);
 		return this;
 	}
 	
-	public HttpContext addAttribute(String name, Object value) {
+	public ProcessContext addAttribute(String name, Object value) {
 		attributes.put(name, value);
 		return this;
 	}
 
-	public HttpContext removeAttribute(String name) {
+	public ProcessContext removeAttribute(String name) {
 		attributes.remove(name);
 		return this;
 	}

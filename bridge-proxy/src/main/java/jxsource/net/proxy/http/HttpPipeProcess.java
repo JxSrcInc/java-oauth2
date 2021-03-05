@@ -37,13 +37,13 @@ public class HttpPipeProcess {
 		private int chunkSize;
 		private byte[] chunkHeader;
 		private boolean lastChunk;
-		private HttpContext context;
+		private ProcessContext context;
 
 		public static HttpPipeProcess build() {
 			return new HttpPipeProcess();
 		}
 
-		public HttpPipeProcess init(String name, InputStream in, OutputStream out, HttpLog appLog, HttpContext context) {
+		public HttpPipeProcess init(String name, InputStream in, OutputStream out, HttpLog appLog, ProcessContext context) {
 			this.in = in;
 			this.out = out;
 			// logOut may be null if no output requires
@@ -78,12 +78,10 @@ public class HttpPipeProcess {
 						byte[] headerBytes = buf.remove(headerLen);
 						httpHeader.init(headerBytes);
 						// cache Content-Type for FileLog to select file extension when saving content to file
-						if("br".equals(httpHeader.getFirstHeader(Constants.ContentEncoding))) {
-							System.err.println(httpHeader.getFirstHeader(Constants.ContentType));
-							System.err.println(httpHeader.getFirstHeader(Constants.ContentEncoding));
-							System.err.println(httpHeader.getFirstHeader(Constants.TransferEncoding));
-							System.err.println(httpHeader.getFirstHeader(Constants.ContentLength));
-						}
+//							System.out.println(httpHeader.getFirstHeader(Constants.ContentType));
+//							System.out.println(httpHeader.getFirstHeader(Constants.ContentEncoding));
+//							System.out.println(httpHeader.getFirstHeader(Constants.TransferEncoding));
+//							System.out.println(httpHeader.getFirstHeader(Constants.ContentLength));
 						context.addAttribute(Constants.ContentType, httpHeader.getFirstHeader(Constants.ContentType));
 						context.addAttribute(Constants.ContentEncoding, httpHeader.getFirstHeader(Constants.ContentEncoding));
 						// TODO: change to use startSave parameter instead of using context attribute
@@ -169,7 +167,7 @@ public class HttpPipeProcess {
 					byte[] chunk = buf.remove(chunkBufSize);
 					output(chunk);
 					byte[] data = new byte[chunkSize];
-					System.arraycopy(chunk, chunkHeader.length+2, data, 0, chunkSize);
+					System.arraycopy(chunk, chunkHeader.length, data, 0, data.length);
 					httpLog.logContent(data);
 					// do next read because the whole chunk process does not finish
 					isChunkHeader = true;
