@@ -12,6 +12,25 @@ public class SessionContext {
 	private boolean downloadData;
 	// comma separated string
 	private String downloadMime;
+	
+	ProcessContext requestContext;
+	ProcessContext responseContext;
+
+	public ProcessContext getRequestContext() {
+		return requestContext;
+	}
+
+	public void setRequestContext(ProcessContext requestContext) {
+		this.requestContext = requestContext;
+	}
+
+	public ProcessContext getResponseContext() {
+		return responseContext;
+	}
+
+	public void setResponseContext(ProcessContext responseContext) {
+		this.responseContext = responseContext;
+	}
 
 	public String getDownloadMime() {
 		return downloadMime;

@@ -78,14 +78,17 @@ public abstract class HttpPipeProcess {
 //						context.addAttribute(Constants.ContentEncoding, httpHeader.getFirstHeader(Constants.ContentEncoding));
 //						context.addAttribute(Constants.TransferEncoding, httpHeader.getFirstHeader(Constants.TransferEncoding));
 						context.addAttribute(Constants.HttpHeaders, httpHeader);
-									// edit headers
+						// edit headers
 						headerBytes = editor.edit(httpHeader);
+						// push headers out of pipe
 						output(headerBytes);
+						// display headers in console
 						httpLog.logHeader(headerBytes);
 						String headerValue = null;
 						if ((headerValue = httpHeader.getFirstHeader(Constants.TransferEncoding)) != null) {
 							step = ChunkContent;
 							isChunkHeader = true;
+							// initial FileLog to save chunk content to file
 							httpLog.startSave();
 						} else if ((headerValue = httpHeader.getFirstHeader(Constants.ContentLength)) != null) {
 							step = LengthContent;
@@ -93,6 +96,7 @@ public abstract class HttpPipeProcess {
 							// reset Content-Length output count
 							outputLength = 0;
 							if(contentLength > 0) {
+								// initial FileLog to save content-length data 
 								httpLog.startSave();
 							}
 						} else {
@@ -103,7 +107,12 @@ public abstract class HttpPipeProcess {
 					// process body after or skip header process.
 					switch (step) {
 					case LengthContent:
+						// write buf to console and file
+						// it must be before output(ByteBuffer)
+						// because output(ByteBuffer) will clear buf
+						// but output(byte[]) will not
 						httpLog.logContent(buf.getArray());
+						// push data out of pipe
 						outputLength += output(buf);
 						if (outputLength < contentLength) {
 							// read more from input stream
@@ -129,9 +138,11 @@ public abstract class HttpPipeProcess {
 					// if(i == -1)
 					// not reachable point in normal process
 					// in which while loop break by transProcessing == false
-					throw new IOException("Input stream return -1");
+					String err = getLogMsg("Input stream return -1: header="+header);
+					throw new IOException(err);
 				}
 			}
+			// close FileLog
 			httpLog.close();
 		}
 
@@ -155,8 +166,8 @@ public abstract class HttpPipeProcess {
 							break; // break do-while loop
 						}
 					}
-					// process chunk
-					int chunkBufSize = chunkSize + 2 + chunkHeader.length;
+					// process chunk - include last CRLF bytes
+					int chunkBufSize = chunkHeader.length + chunkSize + 2;
 					if (buf.getLimit() < chunkBufSize) {
 						// do next read because invalid chunk data
 						return false;
@@ -164,6 +175,8 @@ public abstract class HttpPipeProcess {
 					// output one chunk with its header and data
 					byte[] chunk = buf.remove(chunkBufSize);
 					output(chunk);
+					// write chunk to console or save it to file
+					// without last CRLF bytes
 					byte[] data = new byte[chunkSize];
 					System.arraycopy(chunk, chunkHeader.length, data, 0, data.length);
 					httpLog.logContent(data);

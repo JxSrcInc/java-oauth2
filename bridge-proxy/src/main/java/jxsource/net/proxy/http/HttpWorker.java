@@ -41,7 +41,9 @@ public class HttpWorker implements Worker{
 				.setDownloadMime(downloadMime);
 				
 		this.requestContext = new ProcessContext("Request").setSessionContext(session);
+		session.setRequestContext(requestContext);
 		this.responseContext = new ProcessContext("Response").setSessionContext(session);
+		session.setResponseContext(responseContext);
 		return this;
 	}
 

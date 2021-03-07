@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileLog {
 	private static Logger log = LoggerFactory.getLogger(FileLog.class);
-
+	private DownloadManager downloadManager = DownloadManager.get();
 	private ProcessContext context;
 	private OutputStream out;
 	private ByteBuffer cache;
@@ -27,6 +27,7 @@ public class FileLog {
 	private String transferEncoding;
 	private String contentType;
 	private String contentLength;
+	private String requestLine;
 	
 	public static FileLog build(ProcessContext context, String type) {
 		FileLog fileLog = new FileLog(context, type);
@@ -86,8 +87,9 @@ public class FileLog {
 				bis.close();
 			}
 			out.close();
-			System.err.println("*** finish "+debugInfo()+", processed="+processed);
-			System.err.println("*** -----------------------------");
+//			System.err.println("*** finish: "+requestLine+"\n\t"+debugInfo()+", processed="+processed);
+//			System.err.println("*** -----------------------------");
+			downloadManager.save(filename, requestLine);	
 		} catch (Exception e) {
 			String msg = String.format("Error to save data with Content-Encoding '%s', len=%d, processed=%d, data:\n%s",
 					contentEncoding, cache.getLimit(), processed,
@@ -121,6 +123,7 @@ public class FileLog {
 		transferEncoding = headers.getFirstHeader(Constants.TransferEncoding);
 		contentType = headers.getFirstHeader(Constants.ContentType);
 		contentLength = headers.getFirstHeader(Constants.ContentLength);
+		requestLine = ((HttpHeader)context.getSessionContext().getRequestContext().getAttribute(Constants.HttpHeaders)).getFirstLine();
 
 		File dir = new File(context.getSessionContext().getDownloadDir());
 		if (!dir.exists()) {
