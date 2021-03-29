@@ -9,14 +9,8 @@ import java.util.Map;
  */
 public class ProcessContext {
 	private String name;
-//	private int remotePort;
 	private Map<String, Object> attributes = new HashMap<>();
 	private SessionContext sessionContext;
-
-//	private String downloadDir;
-//	private boolean downloadData;
-//	// comma separated string
-//	private String downloadMime;
 
 	public ProcessContext(String name) {
 		this.name = name;
@@ -31,78 +25,6 @@ public class ProcessContext {
 		return this;
 	}
 
-//	public String getDownloadMime() {
-//		return downloadMime;
-//	}
-//
-//	// comma separated string
-//	public ProcessContext setDownloadMime(String downloadMime) {
-//		this.downloadMime = downloadMime;
-//		return this;
-//	}
-//
-//	public String getDownloadDir() {
-//		return downloadDir;
-//	}
-//
-//	public ProcessContext setDownloadDir(String downloadDir) {
-//		this.downloadDir = downloadDir;
-//		return this;
-//	}
-//
-//	public boolean isDownloadData() {
-//		return downloadData;
-//	}
-//
-//	public ProcessContext setDownloadData(boolean downloadData) {
-//		this.downloadData = downloadData;
-//		return this;
-//	}
-//
-//	public RequestLog getRequestLog() {
-//		return requestLog;
-//	}
-//
-//	public void setRequestLog(RequestLog requestLog) {
-//		this.requestLog = requestLog;
-//	}
-//
-//	public ResponseLog getResponseLog() {
-//		return responseLog;
-//	}
-//
-//	public void setResponseLog(ResponseLog responseLog) {
-//		this.responseLog = responseLog;
-//	}
-
-//	public ProcessContext setRemoteHost(String host) {
-//		remoteHost = host;
-//		return this;
-//	}
-//
-//	public String getRemoteHost() {
-//		return remoteHost;
-//	}
-//
-//	public ProcessContext setRemotePort(int port) {
-//		remotePort = port;
-//		return this;
-//	}
-//
-//	public int getRemotePort() {
-//		return remotePort;
-//	}	
-
-//	public HttpEditor getEditor() {
-//		return editor;
-//	}
-//
-//	public ProcessContext setEditor(HttpEditor editor) {
-//		this.editor = editor;
-//		editor.setHttpContext(this);
-//		return this;
-//	}
-	
 	public ProcessContext addAttribute(String name, Object value) {
 		attributes.put(name, value);
 		return this;

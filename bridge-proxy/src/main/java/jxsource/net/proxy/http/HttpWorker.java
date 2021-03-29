@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jxsource.net.proxy.AppContext;
 import jxsource.net.proxy.Worker;
 import jxsource.net.proxy.tcp.Log;
 import jxsource.net.proxy.tcp.PipeLocalToRemote;
@@ -26,6 +27,7 @@ public class HttpWorker implements Worker{
 	private OutputStream remoteOutput;
 	private RequestProcess procRequest = RequestProcess.build();
 	private ResponseProcess procResponse = ResponseProcess.build();
+	private AppContext appContext = AppContext.get();
 
 	// if logProcess is null, no threadLogProcess run
 	private ProcessContext requestContext;
@@ -88,8 +90,11 @@ public class HttpWorker implements Worker{
 		remoteInput = this.remoteSocket.getInputStream();
 		remoteOutput = this.remoteSocket.getOutputStream();
 		RequestLog requestLog = new RequestLog(requestContext);
+		// use responseLog to print request headers with response headers together
+		//requestLog.setHeaderLog(appContext.isHttpHeaderLog());
 		requestLog.setPrintStream(System.err);
 		ResponseLog responseLog = new ResponseLog(responseContext);
+		responseLog.setHeaderLog(appContext.isHttpHeaderLog());
 		procRequest.init("Request", localInput, remoteOutput, requestLog, requestContext);
 		procResponse.init("Response", remoteInput, localOutput, responseLog, responseContext);
 		
