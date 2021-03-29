@@ -44,8 +44,8 @@ public class FileLog {
 //		System.err.println("*** save "+debugInfo()+","+data.length);
 		if (out != null) {
 			try {
-				if ("gaip".equals(contentEncoding)
-						|| "br".equals(contentEncoding)) {
+				if (Constants.GZip.equals(contentEncoding)
+						|| Constants.Br.equals(contentEncoding)) {
 					cache.append(data);
 				} else {
 					out.write(data);
@@ -61,7 +61,7 @@ public class FileLog {
 
 	public void close() {
 		try {
-			if (cache.getLimit() > 0 && contentEncoding.equals("gzip")) {
+			if (cache.getLimit() > 0 && contentEncoding.equals(Constants.GZip)) {
 				byte[] data = cache.getArray();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				GZIPInputStream gis = new GZIPInputStream(in);
@@ -73,7 +73,7 @@ public class FileLog {
 					processed += i;
 				}
 				gis.close();
-			} else if (cache.getLimit() > 0 && contentEncoding.equals("br")) {
+			} else if (cache.getLimit() > 0 && contentEncoding.equals(Constants.Br)) {
 				byte[] data = cache.getArray();
 				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				BrotliInputStream bis = new BrotliInputStream(in);

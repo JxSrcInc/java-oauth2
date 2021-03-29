@@ -18,4 +18,6 @@ public class Constants {
 	public static final String TransferEncoding = "Transfer-Encoding";
 	public static final String RequestHeaderBytes = "RequestHeaderBytes";
 	public static final String HttpHeaders = "HttpHeaders";
+	public static final String GZip = "gzip";
+	public static final String Br = "br";
 }

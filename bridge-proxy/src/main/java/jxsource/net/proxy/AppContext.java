@@ -20,7 +20,9 @@ public class AppContext {
 	private String appType;
 	private String connType;
 	
+	// for both tcp and http-body
 	private boolean tcpLog = false;
+	private boolean httpHeaderLog = false;
 	private String remoteDomain;
 	private int remotePort;
 	private int serverSocketPort;
@@ -122,15 +124,15 @@ public class AppContext {
 		return me;
 	}
 	
-	public AppContext setLog(String classLog) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		log = (Log) Class.forName(classLog).newInstance();
+	public boolean isHttpHeaderLog() {
+		return httpHeaderLog;
+	}
+
+	public AppContext setHttpHeaderLog(boolean httpHeaderLog) {
+		this.httpHeaderLog = httpHeaderLog;
 		return this;
 	}
-	
-	public Log getLog() {
-		return log;
-	}
-	
+
 	public AppContext setTlsOutGoingSocket(boolean tls) {
 		this.tlsOutGoingSocket = tls;
 		return this;

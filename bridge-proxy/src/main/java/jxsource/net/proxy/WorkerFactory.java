@@ -7,6 +7,7 @@ import jxsource.net.proxy.http.HttpWorker;
 import jxsource.net.proxy.tcp.PipeLocalToRemote;
 import jxsource.net.proxy.tcp.PipeRemoteToLocal;
 import jxsource.net.proxy.tcp.PipeWorker;
+import jxsource.net.proxy.tcp.PrintLog;
 
 public class WorkerFactory {
 
@@ -22,8 +23,8 @@ public class WorkerFactory {
 		switch(connType) {
 		case Constants.ConnTcpType:
 			return new PipeWorker().setPipeLocalToRemote(new PipeLocalToRemote())
-					.setPipeRemoteToLocal(new PipeRemoteToLocal());
-//					.setLog(appContext.getLog(), appContext.isHttpBodyLog());
+					.setPipeRemoteToLocal(new PipeRemoteToLocal())
+					.setLog(new PrintLog(), appContext.isTcpLog());
 		case Constants.CoonHttpType:	
 			return new HttpWorker();
 			default:

@@ -18,6 +18,8 @@ public class Configuration {
 	@Value("${proxy.app.type:bridge}")
 	private String appType;
 
+	@Value("${proxy.http-header.log:true}")
+	boolean httpHeaderLog;
 	@Value("${proxy.tcp.log:true}")
 	boolean tcpLog;
 	@Value("${proxy.connect.type:tcp}")
@@ -50,20 +52,26 @@ public class Configuration {
 		
 		System.err.println("proxy.app.type="+appType);
 
-		System.err.println("proxy.http.body-log="+tcpLog);
-		System.err.println("proxy.connect.type="+connType);
-
 		System.err.println("proxy.remote.domain="+remoteDomain);
 		System.err.println("proxy.remote.port="+remotePort);
 		System.err.println("proxy.server.port="+serverPort);
-		System.err.println("proxy.download.data="+downloadData);
-		System.err.println("proxy.download.dir="+downloadDir);
-		System.err.println("proxy.download.mime="+downloadMime);
+
+		System.err.println("proxy.connect.type="+connType);
+		if(Constants.CoonHttpType.equals(connType)) {
+			System.err.println("proxy.http.Header-log="+httpHeaderLog);
+			System.err.println("proxy.http.body-log="+tcpLog);
+			System.err.println("proxy.download.data="+downloadData);
+			System.err.println("proxy.download.dir="+downloadDir);
+			System.err.println("proxy.download.mime="+downloadMime);
+		} else {
+			System.err.println("proxy.http.tcp-log="+tcpLog);			
+		}
 
 		try {
 			AppContext.get()
 			.setTlsOutGoingSocket(tlsOutGoing)
 			.setTlsInComingServerSocket(thsInComing)
+			.setHttpHeaderLog(httpHeaderLog)
 			.setTcpLog(tcpLog)
 			.setAppType(appType)
 			.setConnType(connType)
