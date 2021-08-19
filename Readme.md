@@ -34,31 +34,29 @@ Two key stores are required.
 
 Note: alias values in two key stores must be the same. Because, in demo configuration settings, client uses the alias as iss and sub in request JWT. And then, Authorization server, uses it as client_id in returned access token.
 
+3. Application Key Store configuration. All parameters need to be defined as Java system properties. (See .launch files)
+
+    * Client
+        * oauth2.keystorePath: path to ClientKeyStore.
+        * oauth2.keystoreAlias: alias for key in ClientKeyStore.
+        * oauth2.keystorePassword: password for ClientKeyStore and alias key
+    * Resource Server
+        * oauth2.keystorePath: path to ResourceKeyStore.
+        * oauth2.keystoreAlias: alias for key in ResourceKeyStore.
+        * oauth2.keystorePassword: password for ResourceKeyStore and alias key
+    * Auth Server
+        * oauth2.certificatePath: path to ClientKeyStore.
+        * oauth2.certificateAlias: alias for key in ClientKeyStore.
+        * oauth2.certificatePassword: password for ClientKeyStore and alias key
+        * oauth2.keystorePath: path to ResourceKeyStore.
+        * oauth2.keystoreAlias: alias for key in ResourceKeyStore.
+        * oauth2.keystorePassword: password for ResourceKeyStore and alias key
+
+
+
 ## Configuration and Spring Properties/Environments
 
-1. ClientKeyStore:
-
-    * oauth2.certificatePath: path to ClientKeyStore.
-    * oauth2.certificateAlias: alias for key in ClientKeyStore.
-    * oauth2.certificatePassword: password for ClientKeyStore and alias key
-
-    All are used by util.KeyFactory class as Java system properties. Must be specified in eclipse launches
-
-    * AuthorizationServer
-    * JwtClient
-    * ClientJwtGenerateUrl (Optional, if it is used)
-
-2. ResourceKeyStore:
-
-    * oauth2.keystorePath: path to ResourceKeyStore.
-    * oauth2.keystoreAlias: alias for key in ResourceKeyStore.
-    * oauth2.keystorePassword: password for ResourceKeyStore and alias key
-
-    All are used by util.KeyFactory class as Java system properties. Must be specified in eclipse launches
-
-    * AuthorizationServer
-
-3. resource.id: It is mapped to Spring package property security.oauth2.resource.id. It is used in two places
+1. resource.id: It is mapped to Spring package property security.oauth2.resource.id. It is used in two places
 
     * defined in access token When AuthorizationServer creates it
 
@@ -70,7 +68,7 @@ Note: alias values in two key stores must be the same. Because, in demo configur
 
     * Resource server application.properties
 
-4. oauth.client.jwt.issuer: It is the _iss_ specified in JWT token when client requests access token. It must be specified in
+2. oauth.client.jwt.issuer: It is the _iss_ specified in JWT token when client requests access token. It must be specified in
 
     * client's application.properties
 
@@ -78,17 +76,19 @@ Note: alias values in two key stores must be the same. Because, in demo configur
 
     It must also match oauth2.keystoreAlias and oauth2.certificateAlias
 
-5. oauth.client.jwt.scope: It is the value scope used in both client request token and Authorization server returned access token. It is a string but cannot contain space. Its usage needs more understand. It is used by ClientJwtGenerateUrl in client.jwt package. It must be specified in
+3. oauth.client.jwt.scope: It is the value scope used in both client request token and Authorization server returned access token. It is a string but cannot contain space. Its usage needs more understand. It is used by ClientJwtGenerateUrl in client.jwt package. It must be specified in
 
     * client's application.properties
 
     * Match the scopes value specified in Spring security inMemory configuration. See AuthorizationServerConfiguration.configure() method in AuthorizationServer.
 
-6. oauth.web.gateway: url for remote client request JWT generator. It is needed only if client gets its request JWT token from remote. It must be specified in
+4. oauth.web.gateway: url for remote client request JWT generator. It is needed only if client gets its request JWT token from remote. It must be specified in
 
     * client's application.properties
 
-7. Spring security role specified as authorities in inMemory configuration. - not used now and should modify the application to use it.
+5. Spring security role specified as authorities in inMemory configuration. - not used now and should modify the application to use it.
+
+All required parameters of Client, Auth Server and Resource Server are specified in their application.properties files.
 
 ## Port
 
