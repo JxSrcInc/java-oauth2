@@ -6,6 +6,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.junit.Before;
 import org.junit.Test;
 
+import jxsource.net.proxy.AppContext;
 import jxsource.net.proxy.http.HttpEditor;
 import jxsource.net.proxy.http.HttpHeader;
 import jxsource.net.proxy.http.HttpRequestEditor;
@@ -21,7 +22,7 @@ public class HttpTest {
 	
 	ByteBuffer headers;
 	ByteBuffer _headers;
-	
+	private String TestDomain = "localhost:9004";
 	@Before
 	public void init() {
 		_headers = new ByteBuffer()
@@ -32,6 +33,7 @@ public class HttpTest {
 		headers = new ByteBuffer().append(_headers)
 			.append(CRLF)
 			.append("body");
+		AppContext.get().setRemoteDomain(TestDomain);
 	}
 
 	byte[] getHeaderBytes() {
@@ -70,6 +72,7 @@ public class HttpTest {
 		HttpEditor editor = new HttpRequestEditor();
 		byte[] editorBytes = editor.edit(headers);
 		System.out.println(new String(headerBytes));
+		System.out.println(new String(editorBytes));
 		assert(headerBytes.length == editorBytes.length);
 		
 	}
@@ -91,6 +94,8 @@ public class HttpTest {
 		HttpEditor editor = new HttpRequestEditor();
 		byte[] editorBytes = editor.edit(headers);
 		System.out.println(new String(editorBytes));
+		assert(new String(editorBytes).contains(TestDomain));
+		
 	}
 
 }

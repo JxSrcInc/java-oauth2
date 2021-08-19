@@ -19,12 +19,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jxsource.oauth2.util.HttpServletRequestJsonNodeBuilder;
 
 @RestController
-@RequestMapping(value = "/spring-security-oauth-resource")
+@RequestMapping(value = "/foos")
 public class FooController {
 	protected final Log logger = LogFactory.getLog(getClass());
 	
     @RolesAllowed({"ROLE_USER","DISDEV.9ACCS9ADMIN","DISVAL.9ACCS9ADMIN","DISINT.9ACCS9ADMIN","DISPRD.9ACCS9ADMIN","DISDEV.9ACCS99USER","DISVAL.9ACCS99USER","DISINT.9ACCS99USER","DISPRD.9ACCS99USER"})
-    @RequestMapping(value = "/foos/{id}", method = RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
     public String getavailableresponse(
             @PathVariable("id") final String id,
             HttpServletRequest request) throws Exception
@@ -32,7 +32,7 @@ public class FooController {
     	JsonNode info = new HttpServletRequestJsonNodeBuilder()
     			.setRequest(request).loadContent().build();
 //    	String json = info.toString();
-    	String json = "{\"id\":93,\"name\":\"HGJv\"}";
+    	String json = "{\"id\":93,\"id\":\""+id+"\"}";
 		logger.debug("** response: "+json);
 		return json;
 	}

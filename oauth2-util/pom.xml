@@ -60,7 +60,7 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- java 11
+		<!-- java 11 -->
 <dependency>
     <groupId>javax.xml.bind</groupId>
     <artifactId>jaxb-api</artifactId>
@@ -71,7 +71,7 @@
     <artifactId>jaxb-runtime</artifactId>
     <version>2.3.2</version>
 </dependency>
- -->
+
 	</dependencies>
 
 </project>

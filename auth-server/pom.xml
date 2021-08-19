@@ -93,7 +93,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<!-- xml binding
+		<!-- xml binding  -->
 <dependency>
     <groupId>javax.xml.bind</groupId>
     <artifactId>jaxb-api</artifactId>
@@ -104,7 +104,7 @@
     <artifactId>jaxb-runtime</artifactId>
     <version>2.3.2</version>
 </dependency>
- -->
+
 	</dependencies>
 
 	<properties>
